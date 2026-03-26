@@ -10,6 +10,9 @@ name: R-CMD-check
 
 permissions: read-all
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
