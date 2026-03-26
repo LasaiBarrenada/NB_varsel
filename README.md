@@ -81,11 +81,6 @@ all_subset_plot(
 VIF_plot(result$all_models, color = "darkgreen")
 ```
 
-## Documentation
-
-Full documentation and vignettes are available at
-**<https://lasaibarrenada.github.io/NB_varsel/>**.
-
 ## Functions
 
 | Function | Description |
