@@ -4,3 +4,5 @@
 ^LICENSE\.md$
 ^\.claude$
 ^\.github$
+^vignettes/.*_cache$
+^vignettes/.*_files$

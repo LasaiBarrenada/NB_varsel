@@ -3,3 +3,8 @@
 .RData
 .Ruserdata
 .positai
+
+# Vignette build artifacts
+vignettes/*_cache/
+vignettes/*.html
+vignettes/*_files/
