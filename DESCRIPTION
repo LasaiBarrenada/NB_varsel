@@ -1,0 +1,44 @@
+Package: NBvarsel
+Title: Variable Selection via Cross-Validated Net Benefit
+Version: 0.1.0
+Authors@R: 
+    person("Lasai", "Barreñada", , "lasai.barrenadataleb@kuleuven.be",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-8020-0210"))
+Description: Performs exhaustive or groupwise (backward elimination) variable
+    selection for binary outcome prediction models using cross-validated Net
+    Benefit as the optimization criterion. Supports predictor costs, restricted
+    cubic splines, interaction terms, permutation importance, and parallel
+    computation. Includes visualizations for model comparison and variable
+    importance.
+License: MIT + file LICENSE
+URL: https://github.com/LasaiBarrenada/NB_varsel
+BugReports: https://github.com/LasaiBarrenada/NB_varsel/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports: 
+    caret,
+    DescTools,
+    doParallel,
+    dplyr,
+    foreach,
+    ggplot2,
+    ggtext,
+    parallel,
+    patchwork,
+    pROC,
+    rlang,
+    rms,
+    stats,
+    stringr,
+    tidyr
+Suggests: 
+    glmnet,
+    ggsci,
+    gt,
+    knitr,
+    quarto,
+    testthat (>= 3.0.0)
+VignetteBuilder: quarto
+Config/testthat/edition: 3
