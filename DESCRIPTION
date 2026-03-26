@@ -12,7 +12,8 @@ Description: Performs exhaustive or groupwise (backward elimination) variable
     computation. Includes visualizations for model comparison and variable
     importance.
 License: GPL (>= 3)
-URL: https://github.com/LasaiBarrenada/NB_varsel
+URL: https://lasaibarrenada.github.io/NB_varsel/,
+    https://github.com/LasaiBarrenada/NB_varsel
 BugReports: https://github.com/LasaiBarrenada/NB_varsel/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
