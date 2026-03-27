@@ -535,10 +535,10 @@ sprintf("LASSO retains: %s", paste(lasso_kept, collapse = ", "))
 auc_results <- data.frame(
   Method = c("NB Model", "Adjusted NB Model", "Backward elimination", "LASSO"),
   AUC = c(
-    fastAUC(test_data$nb_pred, test_data$readmitted),
-    fastAUC(test_data$adj_nb_pred, test_data$readmitted),
-    fastAUC(test_data$bw_pred, test_data$readmitted),
-    fastAUC(test_data$lasso_pred, test_data$readmitted)
+    as.numeric(pROC::auc(test_data$readmitted, test_data$nb_pred)),
+    as.numeric(pROC::auc(test_data$readmitted, test_data$adj_nb_pred)),
+    as.numeric(pROC::auc(test_data$readmitted, test_data$bw_pred)),
+    as.numeric(pROC::auc(test_data$readmitted, test_data$lasso_pred))
   ),
   n_predictors = c(
     length(preds_best_nb),
@@ -688,6 +688,6 @@ This vignette demonstrated the `NBvarsel` workflow:
 1. **`nb_varsel()`** identifies optimal predictor subsets by maximising cross-validated Net Benefit, optionally adjusted for test costs.
 2. **`VIF_plot()`** visualises permutation-based variable importance.
 3. **`all_subset_plot()`** provides a comprehensive view of model performance and predictor inclusion across all evaluated combinations.
-4. **`fastAUC()`** offers a fast rank-based AUC calculation for external validation.
+4. External validation of selected models can be performed using standard discrimination metrics such as AUC.
 
 The key insight is that the statistically best-performing model may not be the most clinically useful when predictor costs are taken into account. Cost-aware variable selection via Net Benefit can lead to simpler, cheaper models that maintain or improve clinical utility.

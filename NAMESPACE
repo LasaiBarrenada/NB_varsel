@@ -2,7 +2,6 @@
 
 export(VIF_plot)
 export(all_subset_plot)
-export(fastAUC)
 export(nb_varsel)
 importFrom(foreach,"%dopar%")
 importFrom(rlang,.data)

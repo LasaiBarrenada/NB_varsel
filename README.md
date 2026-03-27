@@ -29,6 +29,12 @@ You can install the development version of NBvarsel from GitHub:
 pak::pak("LasaiBarrenada/NB_varsel")
 ```
 
+Alternatively, install from a source tarball (`.tar.gz`):
+
+```r
+install.packages("NBvarsel_0.1.0.tar.gz", repos = NULL, type = "source")
+```
+
 ## Quick Start
 
 ```r
@@ -81,6 +87,11 @@ all_subset_plot(
 VIF_plot(result$all_models, color = "darkgreen")
 ```
 
+## Documentation
+
+Full documentation and vignettes are available at
+**<https://lasaibarrenada.github.io/NB_varsel/>**.
+
 ## Functions
 
 | Function | Description |
@@ -88,4 +99,3 @@ VIF_plot(result$all_models, color = "darkgreen")
 | `nb_varsel()` | Variable selection via cross-validated Net Benefit |
 | `all_subset_plot()` | Two-panel model comparison visualisation |
 | `VIF_plot()` | Permutation importance bar chart |
-| `fastAUC()` | Fast rank-based AUC computation |

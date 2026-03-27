@@ -8,6 +8,14 @@
 \description{
 Performs exhaustive or groupwise (backward elimination) variable selection for binary outcome prediction models using cross-validated Net Benefit as the optimization criterion. Supports predictor costs, restricted cubic splines, interaction terms, permutation importance, and parallel computation. Includes visualizations for model comparison and variable importance.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/LasaiBarrenada/NB_varsel}
+  \item Report bugs at \url{https://github.com/LasaiBarrenada/NB_varsel/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Lasai Barreñada \email{lasai.barrenadataleb@kuleuven.be} (\href{https://orcid.org/0000-0001-8020-0210}{ORCID})
 
