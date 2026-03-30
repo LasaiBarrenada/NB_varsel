@@ -4,5 +4,7 @@
 ^LICENSE\.md$
 ^\.claude$
 ^\.github$
+^docs$
+^_pkgdown\.yml$
 ^vignettes/.*_cache$
 ^vignettes/.*_files$

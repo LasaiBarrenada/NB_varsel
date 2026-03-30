@@ -1,0 +1,36 @@
+url: https://lasaibarrenada.github.io/NB_varsel/
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#007BFF"
+    navbar-bg: "#007BFF"
+    font-family-sans-serif: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+  includes:
+    in_header: |
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&display=swap" rel="stylesheet">
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+  components:
+    github:
+      icon: fa-github
+      href: https://github.com/LasaiBarrenada/NB_varsel
+      aria-label: GitHub
+
+authors:
+  Lasai Barreñada:
+    href: https://lasaibarrenada.github.io/
+
+reference:
+  - title: Variable Selection
+    contents:
+      - nb_varsel
+  - title: Visualisation
+    contents:
+      - all_subset_plot
+      - VIF_plot
