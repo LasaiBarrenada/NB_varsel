@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   nb-varsel-tutorial: nb-varsel-tutorial.html
-last_built: 2026-03-30T07:01Z
+last_built: 2026-03-30T07:14Z
 urls:
   reference: https://lasaibarrenada.github.io/NB_varsel/reference
   article: https://lasaibarrenada.github.io/NB_varsel/articles
