@@ -8,20 +8,11 @@ format:
     toc: true
     number-sections: true
     code-fold: true
-    theme: cosmo
-    page-layout: full
-    code-tools:
-      source: false
-      toggle: true
-      caption: "Code"
-    lightbox: true
 execute:
-  cache: true
   message: false
   warning: false
   error: false
   echo: true
-embed-resources: true
 vignette: >
   %\VignetteIndexEntry{Variable Selection via Net Benefit with NBvarsel}
   %\VignetteEngine{quarto::html}
