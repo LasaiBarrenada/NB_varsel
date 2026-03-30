@@ -1,0 +1,119 @@
+# NBvarsel
+
+Variable selection for binary outcome prediction models using
+cross-validated **Net Benefit** as the optimization criterion.
+
+## Overview
+
+`NBvarsel` evaluates predictor subsets by their contribution to clinical
+decision-making (Net Benefit), rather than purely statistical
+performance metrics like AUC. It supports:
+
+- **Exhaustive** and **groupwise** (backward elimination) search
+  strategies
+- Predictor costs (per-variable or grouped)
+- Restricted cubic splines for continuous predictors
+- Interaction terms
+- Permutation importance scores
+- Parallel computation
+
+## Installation
+
+You can install the development version of NBvarsel from GitHub:
+
+``` r
+# install.packages("pak")
+pak::pak("LasaiBarrenada/NB_varsel")
+```
+
+Alternatively, install from a source tarball (`.tar.gz`):
+
+``` r
+install.packages("NBvarsel_0.1.0.tar.gz", repos = NULL, type = "source")
+```
+
+## Quick Start
+
+``` r
+library(NBvarsel)
+
+# Simulate data
+set.seed(42)
+n <- 500
+df <- data.frame(
+  X1 = rnorm(n), X2 = rbinom(n, 1, 0.7),
+  X3 = rnorm(n), X4 = rbinom(n, 1, 0.5)
+)
+df$Y <- rbinom(n, 1, plogis(2 * df$X1 + 1.5 * df$X2 + 0.2 * df$X3))
+
+# Define predictor costs
+harms <- c(X1 = 0.1, X2 = 0.05, X3 = 0.1, X4 = 0.0001)
+
+# Run exhaustive variable selection
+result <- nb_varsel(
+  data = df,
+  outcome_var = "Y",
+  costs = harms,
+  mode = "exhaustive",
+  splines = FALSE,
+  permutation = TRUE,
+  allow_parallel = FALSE
+)
+
+# Best model (highest cost-adjusted Net Benefit)
+result$best_model_stats
+
+# All evaluated models, sorted by Avg_Adj_Net_Benefit
+result$all_models
+```
+
+### Visualisation
+
+``` r
+# Two-panel plot: metric overview + predictor inclusion heatmap
+all_subset_plot(result$all_models)
+
+# Customise colors
+all_subset_plot(
+  result$all_models,
+  highlight_color = "steelblue",
+  tile_color = "#E64B35"
+)
+
+# Permutation importance bar chart
+VIF_plot(result$all_models, color = "darkgreen")
+```
+
+## Documentation
+
+Full documentation and vignettes are available at
+**<https://lasaibarrenada.github.io/NB_varsel/>**.
+
+## Functions
+
+| Function                                                                                       | Description                                        |
+|------------------------------------------------------------------------------------------------|----------------------------------------------------|
+| [`nb_varsel()`](https://lasaibarrenada.github.io/NB_varsel/reference/nb_varsel.md)             | Variable selection via cross-validated Net Benefit |
+| [`all_subset_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/all_subset_plot.md) | Two-panel model comparison visualisation           |
+| [`VIF_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/VIF_plot.md)               | Permutation importance bar chart                   |
+
+# Package index
+
+## Variable Selection
+
+- [`nb_varsel()`](https://lasaibarrenada.github.io/NB_varsel/reference/nb_varsel.md)
+  : Variable Selection via Cross-Validated Net Benefit
+
+## Visualisation
+
+- [`all_subset_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/all_subset_plot.md)
+  : All-Subset Model Comparison Plot
+- [`VIF_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/VIF_plot.md)
+  : Permutation Importance Bar Plot
+
+# Articles
+
+### All vignettes
+
+- [Variable Selection via Net Benefit with
+  NBvarsel](https://lasaibarrenada.github.io/NB_varsel/articles/nb-varsel-tutorial.md):
