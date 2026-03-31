@@ -34,3 +34,6 @@ reference:
     contents:
       - all_subset_plot
       - VIF_plot
+  - title: Data
+    contents:
+      - adnex_results

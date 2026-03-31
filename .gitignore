@@ -6,6 +6,7 @@
 docs/
 
 # Vignette build artifacts
+vignettes/.quarto/
 vignettes/*_cache/
 vignettes/*.html
 vignettes/*_files/

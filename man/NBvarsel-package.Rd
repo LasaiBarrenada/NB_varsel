@@ -11,6 +11,7 @@ Performs exhaustive or groupwise (backward elimination) variable selection for b
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://lasaibarrenada.github.io/NB_varsel/}
   \item \url{https://github.com/LasaiBarrenada/NB_varsel}
   \item Report bugs at \url{https://github.com/LasaiBarrenada/NB_varsel/issues}
 }

@@ -53,7 +53,7 @@ VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB") {
   ) +
     ggplot2::geom_bar(stat = "identity", fill = color) +
     ggplot2::xlab("Predictors") +
-    ggplot2::ylab("Average \u0394 NB") +
+    ggplot2::ylab(expression("Average" ~ Delta ~ "NB")) +
     ggplot2::theme_classic() +
     ggplot2::coord_flip()
 }

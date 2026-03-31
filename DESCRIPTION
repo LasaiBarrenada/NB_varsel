@@ -15,7 +15,9 @@ License: GPL (>= 3)
 URL: https://lasaibarrenada.github.io/NB_varsel/,
     https://github.com/LasaiBarrenada/NB_varsel
 BugReports: https://github.com/LasaiBarrenada/NB_varsel/issues
+Depends: R (>= 3.5)
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
