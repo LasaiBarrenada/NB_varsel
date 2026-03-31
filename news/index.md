@@ -3,9 +3,14 @@
 ## NBvarsel 0.1.0
 
 - Initial release.
+- Added `adnex_results` dataset: pre-computed exhaustive variable
+  selection results from the IOTA/ADNEX ovarian tumour case study (top
+  20 models per predictor count from a 65,535-model search). Original
+  patient data are not disclosed.
 - Added a tutorial vignette (`nb-varsel-tutorial`) demonstrating the
-  full workflow with fabricated clinical data, including comparison with
-  backward elimination and LASSO.
+  full workflow with fabricated clinical data, comparison with backward
+  elimination and LASSO, and a real-data case study using the shipped
+  ADNEX results.
 - [`nb_varsel()`](https://lasaibarrenada.github.io/NB_varsel/reference/nb_varsel.md)
   performs exhaustive or groupwise variable selection for binary outcome
   models using cross-validated Net Benefit, with support for predictor

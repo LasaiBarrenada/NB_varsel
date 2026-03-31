@@ -320,7 +320,7 @@ end_time <- Sys.time()
 sprintf("Exhaustive search took: %s", format(end_time - start_time))
 ```
 
-    [1] "Exhaustive search took: 4.199386 mins"
+    [1] "Exhaustive search took: 4.132882 mins"
 
 #### 3.3.1 Best model
 
@@ -470,7 +470,7 @@ end_time <- Sys.time()
 sprintf("Groupwise search took: %s", format(end_time - start_time))
 ```
 
-    [1] "Groupwise search took: 17.77182 secs"
+    [1] "Groupwise search took: 16.73942 secs"
 
 Code
 
@@ -768,7 +768,234 @@ Figure 8: Decision curve analysis comparing harm-adjusted net benefit.
 method’s test costs, highlighting the advantage of cost-aware variable
 selection.
 
-## 4 Summary
+## 4 Case study — ADNEX ovarian tumour data
+
+> **Pre-computed results**
+>
+> The original patient-level data from the IOTA consortium are not
+> publicly available. This section uses pre-computed results shipped
+> with the package (`adnex_results`). The analysis code is shown for
+> transparency but is not executed.
+
+This section demonstrates the methodology on real clinical data used to
+develop the ADNEX model for classifying ovarian tumours as benign or
+malignant. The data come from the International Ovarian Tumour Analysis
+(IOTA) consortium, phases 1–3, and comprise 16 candidate predictors.
+
+### 4.1 Predictors and cost structure
+
+Predictors are grouped into three cost categories reflecting the
+clinical workflow:
+
+- **Clinical history** (no cost): patient age, family history of ovarian
+  cancer, oncology centre, pain
+- **Ultrasound examination** (moderate cost): maximum lesion diameter,
+  proportion solid, locules \> 10, papillary count, papillary presence,
+  acoustic shadows, ascites, irregular walls, bilateral, colour score,
+  maximum solid diameter
+- **Blood biomarker** (higher cost): CA-125
+
+Code
+
+``` r
+vars <- c(
+  "malignant", "age", "ca125", "family_history", "locules_gt_10",
+  "oncology_center", "max_diam_lesion", "papillary_count",
+  "acoustic_shadows", "ascites", "ireg_walls", "bilateral",
+  "color_score", "pain", "max_diam_solid", "papillary_presence",
+  "prop_solid"
+)
+
+prevalence <- mean(test_data$malignant)
+
+grouped_costs <- list(
+  history = list(
+    cost = 0,
+    vars = c("age", "family_history", "oncology_center", "pain")
+  ),
+  US = list(
+    cost = prevalence * 0.02,
+    vars = c(
+      "max_diam_lesion", "prop_solid", "locules_gt_10",
+      "papillary_count", "acoustic_shadows", "ascites",
+      "bilateral", "ireg_walls", "papillary_presence",
+      "color_score", "max_diam_solid"
+    )
+  ),
+  blood = list(
+    cost = prevalence * 0.05,
+    vars = c("ca125")
+  )
+)
+```
+
+### 4.2 Exhaustive search
+
+The exhaustive search evaluated all 65,535 (2^16 - 1) predictor
+combinations using 20-fold cross-validation with restricted cubic
+splines (3 knots) and permutation importance.
+
+Code
+
+``` r
+exhaustive_results <- nb_varsel(
+  data = training_data[, vars],
+  outcome_var = "malignant",
+  costs = grouped_costs,
+  thresholds = seq(0.01, 0.2, by = 0.01),
+  include_interactions = FALSE,
+  cv_folds = 20,
+  mode = "exhaustive",
+  allow_parallel = TRUE,
+  permutation = TRUE,
+  splines = TRUE
+)
+```
+
+The pre-computed results are available as a shipped dataset:
+
+Code
+
+``` r
+data(adnex_results)
+```
+
+#### 4.2.1 Best model
+
+Code
+
+``` r
+best <- attr(adnex_results, "best_model_stats")
+
+best |>
+  select(Model, n_Preds, AUC, Brier, Total_Cost,
+         Avg_Adj_Net_Benefit, Avg_Net_Benefit) |>
+  gt() |>
+  fmt_number(
+    columns = c("AUC", "Brier", "Total_Cost",
+                "Avg_Adj_Net_Benefit", "Avg_Net_Benefit"),
+    decimals = 3
+  ) |>
+  cols_label(
+    Model = "Included predictors",
+    n_Preds = "N",
+    AUC = "AUC",
+    Brier = "Brier Score",
+    Avg_Net_Benefit = "Avg. NB",
+    Total_Cost = "Total Cost",
+    Avg_Adj_Net_Benefit = "Avg. Adj. NB"
+  )
+```
+
+| Included predictors                                                                                                                                                        | N   | AUC   | Brier Score | Total Cost | Avg. Adj. NB | Avg. NB |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----|-------|-------------|------------|--------------|---------|
+| age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid | 13  | 0.952 | 0.080       | 0.005      | 0.290        | 0.295   |
+
+Table 6: Best model from the ADNEX exhaustive search (ranked by
+cost-adjusted Net Benefit)
+
+The best model retains 13 of the 16 predictors, excluding CA-125, family
+history, and maximum solid diameter. Despite using fewer predictors, the
+cost-adjusted Net Benefit is maximised because the excluded predictors
+contributed little utility relative to their cost.
+
+#### 4.2.2 Top models
+
+Code
+
+``` r
+adnex_results$Rank_adj_NB <- rank(
+  -adnex_results$Avg_Adj_Net_Benefit, ties.method = "min"
+)
+
+tbl_data <- adnex_results |>
+  select(Rank_adj_NB, Model, n_Preds, AUC, Brier,
+         Total_Cost, Avg_Adj_Net_Benefit, Avg_Net_Benefit)
+
+tbl <- tbl_data |>
+  gt() |>
+  fmt_number(
+    columns = c("AUC", "Brier", "Total_Cost",
+                "Avg_Adj_Net_Benefit", "Avg_Net_Benefit"),
+    decimals = 3
+  ) |>
+  cols_label(
+    Rank_adj_NB = "Rank (Adj. NB)",
+    Model = "Included predictors",
+    n_Preds = "N",
+    AUC = "AUC",
+    Brier = "Brier Score",
+    Avg_Net_Benefit = "Avg. NB",
+    Total_Cost = "Total Cost",
+    Avg_Adj_Net_Benefit = "Avg. Adj. NB"
+  )
+
+if (knitr::is_html_output()) {
+  tbl <- tbl |>
+    opt_interactive(
+      use_pagination = TRUE,
+      page_size_default = 10,
+      use_filters = TRUE,
+      use_compact_mode = TRUE
+    )
+}
+tbl
+```
+
+Table 7: Top models per predictor count from the ADNEX exhaustive search
+
+#### 4.2.3 Visualisation
+
+Code
+
+``` r
+VIF_plot(adnex_results)
+```
+
+![](nb-varsel-tutorial_files/figure-html/fig-adnex-vif-1.png)
+
+Figure 9: Variable importance for the ADNEX case study. Bars show the
+average drop in Net Benefit when each predictor is permuted.
+
+[Figure 9](#fig-adnex-vif) shows that the proportion solid component and
+colour score are the most important predictors for clinical utility,
+followed by maximum lesion diameter and oncology centre status.
+
+Code
+
+``` r
+all_subset_plot(
+  adnex_results,
+  filter = 7,
+  size_dot = 1
+)
+
+all_subset_plot(
+  adnex_results,
+  filter = 7,
+  size_dot = 1,
+  metric = "Avg_Adj_Net_Benefit",
+  y_axis = "Adjusted Net Benefit"
+)
+```
+
+![](nb-varsel-tutorial_files/figure-html/fig-adnex-subset-1.png)
+
+Figure 10: All subset plot (Net Benefit) for the ADNEX case study.
+
+![](nb-varsel-tutorial_files/figure-html/fig-adnex-subset-2.png)
+
+Figure 11: All subset plot (cost-adjusted Net Benefit) for the ADNEX
+case study.
+
+[Figure 10](#fig-adnex-subset-1) and [Figure 11](#fig-adnex-subset-2)
+show the all-subset plots. The heatmap indicates which predictors are
+included in each model. The best model’s predictors are highlighted in
+bold. Note that cost adjustment changes the ranking: models that include
+the blood biomarker (CA-125) are penalised, shifting the optimum toward
+models relying on ultrasound and clinical history alone.
+
+## 5 Summary
 
 This vignette demonstrated the `NBvarsel` workflow:
 

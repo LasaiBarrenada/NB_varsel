@@ -38,7 +38,8 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="nbvarsel-010">NBvarsel 0.1.0<a class="anchor" aria-label="anchor" href="#nbvarsel-010"></a></h2>
 <ul><li>Initial release.</li>
-<li>Added a tutorial vignette (<code>nb-varsel-tutorial</code>) demonstrating the full workflow with fabricated clinical data, including comparison with backward elimination and LASSO.</li>
+<li>Added <code>adnex_results</code> dataset: pre-computed exhaustive variable selection results from the IOTA/ADNEX ovarian tumour case study (top 20 models per predictor count from a 65,535-model search). Original patient data are not disclosed.</li>
+<li>Added a tutorial vignette (<code>nb-varsel-tutorial</code>) demonstrating the full workflow with fabricated clinical data, comparison with backward elimination and LASSO, and a real-data case study using the shipped ADNEX results.</li>
 <li>
 <code><a href="../reference/nb_varsel.html">nb_varsel()</a></code> performs exhaustive or groupwise variable selection for binary outcome models using cross-validated Net Benefit, with support for predictor costs (per-variable or grouped), restricted cubic splines, interaction terms, permutation importance, and parallel computation.</li>
 <li>

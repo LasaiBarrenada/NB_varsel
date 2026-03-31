@@ -936,7 +936,7 @@ Figure 2: All subset plot for the simple illustration.
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Exhaustive search took: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output cell-output-stdout">
-<pre><code>[1] "Exhaustive search took: 4.199386 mins"</code></pre>
+<pre><code>[1] "Exhaustive search took: 4.132882 mins"</code></pre>
 </div>
 </div>
 <section class="level3" data-number="3.3.1"><h4 data-number="3.3.1" id="best-model">
@@ -2022,7 +2022,7 @@ Figure 5: All subset plot (Adjusted Net Benefit)
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Groupwise search took: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output cell-output-stdout">
-<pre><code>[1] "Groupwise search took: 17.77182 secs"</code></pre>
+<pre><code>[1] "Groupwise search took: 16.73942 secs"</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -3268,8 +3268,1153 @@ Figure 8: Decision curve analysis comparing harm-adjusted net benefit.
 </div>
 </div>
 <p><a href="#fig-dca-1" class="quarto-xref">Figure 7</a> shows the standard decision curve analysis. <a href="#fig-dca-2" class="quarto-xref">Figure 8</a> shows the same curves after subtracting each method’s test costs, highlighting the advantage of cost-aware variable selection.</p>
-</section></section></section><section class="section level2" data-number="4"><h2 data-number="4" id="summary">
-<span class="header-section-number">4</span> Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</section></section></section><section class="section level2" data-number="4"><h2 data-number="4" id="sec-adnex">
+<span class="header-section-number">4</span> Case study — ADNEX ovarian tumour data<a class="anchor" aria-label="anchor" href="#sec-adnex"></a>
+</h2>
+<div>
+<blockquote>
+<p><strong>Pre-computed results</strong></p>
+<p>The original patient-level data from the IOTA consortium are not publicly available. This section uses pre-computed results shipped with the package (<code>adnex_results</code>). The analysis code is shown for transparency but is not executed.</p>
+</blockquote>
+</div>
+<p>This section demonstrates the methodology on real clinical data used to develop the ADNEX model for classifying ovarian tumours as benign or malignant. The data come from the International Ovarian Tumour Analysis (IOTA) consortium, phases 1–3, and comprise 16 candidate predictors.</p>
+<section class="level2" data-number="4.1"><h3 data-number="4.1" id="predictors-and-cost-structure">
+<span class="header-section-number">4.1</span> Predictors and cost structure<a class="anchor" aria-label="anchor" href="#predictors-and-cost-structure"></a>
+</h3>
+<p>Predictors are grouped into three cost categories reflecting the clinical workflow:</p>
+<ul>
+<li>
+<strong>Clinical history</strong> (no cost): patient age, family history of ovarian cancer, oncology centre, pain</li>
+<li>
+<strong>Ultrasound examination</strong> (moderate cost): maximum lesion diameter, proportion solid, locules &gt; 10, papillary count, papillary presence, acoustic shadows, ascites, irregular walls, bilateral, colour score, maximum solid diameter</li>
+<li>
+<strong>Blood biomarker</strong> (higher cost): CA-125</li>
+</ul>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"malignant"</span>, <span class="st">"age"</span>, <span class="st">"ca125"</span>, <span class="st">"family_history"</span>, <span class="st">"locules_gt_10"</span>,</span>
+<span>  <span class="st">"oncology_center"</span>, <span class="st">"max_diam_lesion"</span>, <span class="st">"papillary_count"</span>,</span>
+<span>  <span class="st">"acoustic_shadows"</span>, <span class="st">"ascites"</span>, <span class="st">"ireg_walls"</span>, <span class="st">"bilateral"</span>,</span>
+<span>  <span class="st">"color_score"</span>, <span class="st">"pain"</span>, <span class="st">"max_diam_solid"</span>, <span class="st">"papillary_presence"</span>,</span>
+<span>  <span class="st">"prop_solid"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">prevalence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">test_data</span><span class="op">$</span><span class="va">malignant</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">grouped_costs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  history <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    cost <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"family_history"</span>, <span class="st">"oncology_center"</span>, <span class="st">"pain"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  US <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    cost <span class="op">=</span> <span class="va">prevalence</span> <span class="op">*</span> <span class="fl">0.02</span>,</span>
+<span>    vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"max_diam_lesion"</span>, <span class="st">"prop_solid"</span>, <span class="st">"locules_gt_10"</span>,</span>
+<span>      <span class="st">"papillary_count"</span>, <span class="st">"acoustic_shadows"</span>, <span class="st">"ascites"</span>,</span>
+<span>      <span class="st">"bilateral"</span>, <span class="st">"ireg_walls"</span>, <span class="st">"papillary_presence"</span>,</span>
+<span>      <span class="st">"color_score"</span>, <span class="st">"max_diam_solid"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  blood <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    cost <span class="op">=</span> <span class="va">prevalence</span> <span class="op">*</span> <span class="fl">0.05</span>,</span>
+<span>    vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ca125"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</details>
+</div>
+</section><section class="level2" data-number="4.2"><h3 data-number="4.2" id="exhaustive-search">
+<span class="header-section-number">4.2</span> Exhaustive search<a class="anchor" aria-label="anchor" href="#exhaustive-search"></a>
+</h3>
+<p>The exhaustive search evaluated all 65,535 (2^16 - 1) predictor combinations using 20-fold cross-validation with restricted cubic splines (3 knots) and permutation importance.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">exhaustive_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/nb_varsel.html">nb_varsel</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">training_data</span><span class="op">[</span>, <span class="va">vars</span><span class="op">]</span>,</span>
+<span>  outcome_var <span class="op">=</span> <span class="st">"malignant"</span>,</span>
+<span>  costs <span class="op">=</span> <span class="va">grouped_costs</span>,</span>
+<span>  thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.2</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>,</span>
+<span>  include_interactions <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cv_folds <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  mode <span class="op">=</span> <span class="st">"exhaustive"</span>,</span>
+<span>  allow_parallel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  permutation <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  splines <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</details>
+</div>
+<p>The pre-computed results are available as a shipped dataset:</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">adnex_results</span><span class="op">)</span></span></code></pre></div>
+</details>
+</div>
+<section class="level3" data-number="4.2.1"><h4 data-number="4.2.1" id="best-model-1">
+<span class="header-section-number">4.2.1</span> Best model<a class="anchor" aria-label="anchor" href="#best-model-1"></a>
+</h4>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">best</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">adnex_results</span>, <span class="st">"best_model_stats"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">best</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">Model</span>, <span class="va">n_Preds</span>, <span class="va">AUC</span>, <span class="va">Brier</span>, <span class="va">Total_Cost</span>,</span>
+<span>         <span class="va">Avg_Adj_Net_Benefit</span>, <span class="va">Avg_Net_Benefit</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">gt</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">fmt_number</span><span class="op">(</span></span>
+<span>    columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AUC"</span>, <span class="st">"Brier"</span>, <span class="st">"Total_Cost"</span>,</span>
+<span>                <span class="st">"Avg_Adj_Net_Benefit"</span>, <span class="st">"Avg_Net_Benefit"</span><span class="op">)</span>,</span>
+<span>    decimals <span class="op">=</span> <span class="fl">3</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">cols_label</span><span class="op">(</span></span>
+<span>    Model <span class="op">=</span> <span class="st">"Included predictors"</span>,</span>
+<span>    n_Preds <span class="op">=</span> <span class="st">"N"</span>,</span>
+<span>    AUC <span class="op">=</span> <span class="st">"AUC"</span>,</span>
+<span>    Brier <span class="op">=</span> <span class="st">"Brier Score"</span>,</span>
+<span>    Avg_Net_Benefit <span class="op">=</span> <span class="st">"Avg. NB"</span>,</span>
+<span>    Total_Cost <span class="op">=</span> <span class="st">"Total Cost"</span>,</span>
+<span>    Avg_Adj_Net_Benefit <span class="op">=</span> <span class="st">"Avg. Adj. NB"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+</details><div id="tbl-adnex-best" class="cell quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-tbl"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-adnex-best-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table 6: Best model from the ADNEX exhaustive search (ranked by cost-adjusted Net Benefit)
+</figcaption><div aria-describedby="tbl-adnex-best-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="fakgtmbawu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#fakgtmbawu table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#fakgtmbawu thead, #fakgtmbawu tbody, #fakgtmbawu tfoot, #fakgtmbawu tr, #fakgtmbawu td, #fakgtmbawu th {
+  border-style: none;
+}
+
+#fakgtmbawu p {
+  margin: 0;
+  padding: 0;
+}
+
+#fakgtmbawu .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#fakgtmbawu .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#fakgtmbawu .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#fakgtmbawu .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#fakgtmbawu .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#fakgtmbawu .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#fakgtmbawu .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#fakgtmbawu .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#fakgtmbawu .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#fakgtmbawu .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#fakgtmbawu .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#fakgtmbawu .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#fakgtmbawu .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#fakgtmbawu .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#fakgtmbawu .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fakgtmbawu .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#fakgtmbawu .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#fakgtmbawu .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#fakgtmbawu .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fakgtmbawu .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#fakgtmbawu .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fakgtmbawu .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#fakgtmbawu .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fakgtmbawu .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fakgtmbawu .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fakgtmbawu .gt_left {
+  text-align: left;
+}
+
+#fakgtmbawu .gt_center {
+  text-align: center;
+}
+
+#fakgtmbawu .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#fakgtmbawu .gt_font_normal {
+  font-weight: normal;
+}
+
+#fakgtmbawu .gt_font_bold {
+  font-weight: bold;
+}
+
+#fakgtmbawu .gt_font_italic {
+  font-style: italic;
+}
+
+#fakgtmbawu .gt_super {
+  font-size: 65%;
+}
+
+#fakgtmbawu .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#fakgtmbawu .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#fakgtmbawu .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#fakgtmbawu .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#fakgtmbawu .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#fakgtmbawu .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#fakgtmbawu .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#fakgtmbawu .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#fakgtmbawu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="table gt_table cell caption-top" data-quarto-bootstrap="false">
+<thead><tr class="gt_col_headings header">
+<th id="Model" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Included predictors</th>
+<th id="n_Preds" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">N</th>
+<th id="AUC" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">AUC</th>
+<th id="Brier" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Brier Score</th>
+<th id="Total_Cost" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Total Cost</th>
+<th id="Avg_Adj_Net_Benefit" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Avg. Adj. NB</th>
+<th id="Avg_Net_Benefit" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Avg. NB</th>
+</tr></thead>
+<tbody class="gt_table_body"><tr class="odd">
+<td class="gt_row gt_left" headers="Model">age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid</td>
+<td class="gt_row gt_right" headers="n_Preds">13</td>
+<td class="gt_row gt_right" headers="AUC">0.952</td>
+<td class="gt_row gt_right" headers="Brier">0.080</td>
+<td class="gt_row gt_right" headers="Total_Cost">0.005</td>
+<td class="gt_row gt_right" headers="Avg_Adj_Net_Benefit">0.290</td>
+<td class="gt_row gt_right" headers="Avg_Net_Benefit">0.295</td>
+</tr></tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The best model retains 13 of the 16 predictors, excluding CA-125, family history, and maximum solid diameter. Despite using fewer predictors, the cost-adjusted Net Benefit is maximised because the excluded predictors contributed little utility relative to their cost.</p>
+</section><section class="level3" data-number="4.2.2"><h4 data-number="4.2.2" id="top-models">
+<span class="header-section-number">4.2.2</span> Top models<a class="anchor" aria-label="anchor" href="#top-models"></a>
+</h4>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">adnex_results</span><span class="op">$</span><span class="va">Rank_adj_NB</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span></span>
+<span>  <span class="op">-</span><span class="va">adnex_results</span><span class="op">$</span><span class="va">Avg_Adj_Net_Benefit</span>, ties.method <span class="op">=</span> <span class="st">"min"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tbl_data</span> <span class="op">&lt;-</span> <span class="va">adnex_results</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">Rank_adj_NB</span>, <span class="va">Model</span>, <span class="va">n_Preds</span>, <span class="va">AUC</span>, <span class="va">Brier</span>,</span>
+<span>         <span class="va">Total_Cost</span>, <span class="va">Avg_Adj_Net_Benefit</span>, <span class="va">Avg_Net_Benefit</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tbl</span> <span class="op">&lt;-</span> <span class="va">tbl_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">gt</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">fmt_number</span><span class="op">(</span></span>
+<span>    columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AUC"</span>, <span class="st">"Brier"</span>, <span class="st">"Total_Cost"</span>,</span>
+<span>                <span class="st">"Avg_Adj_Net_Benefit"</span>, <span class="st">"Avg_Net_Benefit"</span><span class="op">)</span>,</span>
+<span>    decimals <span class="op">=</span> <span class="fl">3</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">cols_label</span><span class="op">(</span></span>
+<span>    Rank_adj_NB <span class="op">=</span> <span class="st">"Rank (Adj. NB)"</span>,</span>
+<span>    Model <span class="op">=</span> <span class="st">"Included predictors"</span>,</span>
+<span>    n_Preds <span class="op">=</span> <span class="st">"N"</span>,</span>
+<span>    AUC <span class="op">=</span> <span class="st">"AUC"</span>,</span>
+<span>    Brier <span class="op">=</span> <span class="st">"Brier Score"</span>,</span>
+<span>    Avg_Net_Benefit <span class="op">=</span> <span class="st">"Avg. NB"</span>,</span>
+<span>    Total_Cost <span class="op">=</span> <span class="st">"Total Cost"</span>,</span>
+<span>    Avg_Adj_Net_Benefit <span class="op">=</span> <span class="st">"Avg. Adj. NB"</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/output_type.html" class="external-link">is_html_output</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">tbl</span> <span class="op">&lt;-</span> <span class="va">tbl</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">opt_interactive</span><span class="op">(</span></span>
+<span>      use_pagination <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>      page_size_default <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>      use_filters <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>      use_compact_mode <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">tbl</span></span></code></pre></div>
+</details><div id="tbl-adnex-all" class="cell quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-tbl"><figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-adnex-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table 7: Top models per predictor count from the ADNEX exhaustive search
+</figcaption><div aria-describedby="tbl-adnex-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div id="xrrljijhhn" class=".gt_table" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xrrljijhhn table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#xrrljijhhn thead, #xrrljijhhn tbody, #xrrljijhhn tfoot, #xrrljijhhn tr, #xrrljijhhn td, #xrrljijhhn th {
+  border-style: none;
+}
+
+#xrrljijhhn p {
+  margin: 0;
+  padding: 0;
+}
+
+#xrrljijhhn .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#xrrljijhhn .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#xrrljijhhn .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#xrrljijhhn .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#xrrljijhhn .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#xrrljijhhn .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#xrrljijhhn .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#xrrljijhhn .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#xrrljijhhn .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#xrrljijhhn .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#xrrljijhhn .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#xrrljijhhn .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#xrrljijhhn .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#xrrljijhhn .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#xrrljijhhn .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xrrljijhhn .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#xrrljijhhn .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#xrrljijhhn .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#xrrljijhhn .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xrrljijhhn .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#xrrljijhhn .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xrrljijhhn .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#xrrljijhhn .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xrrljijhhn .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xrrljijhhn .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xrrljijhhn .gt_left {
+  text-align: left;
+}
+
+#xrrljijhhn .gt_center {
+  text-align: center;
+}
+
+#xrrljijhhn .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#xrrljijhhn .gt_font_normal {
+  font-weight: normal;
+}
+
+#xrrljijhhn .gt_font_bold {
+  font-weight: bold;
+}
+
+#xrrljijhhn .gt_font_italic {
+  font-style: italic;
+}
+
+#xrrljijhhn .gt_super {
+  font-size: 65%;
+}
+
+#xrrljijhhn .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#xrrljijhhn .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#xrrljijhhn .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#xrrljijhhn .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#xrrljijhhn .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#xrrljijhhn .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#xrrljijhhn .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#xrrljijhhn .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#xrrljijhhn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<div id="xrrljijhhn" class="reactable html-widget" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="xrrljijhhn">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"Rank_adj_NB":[272,279,280,281,282,283,283,283,286,287,288,289,289,289,289,293,231,238,239,247,256,258,263,265,266,267,268,269,270,271,273,274,275,276,277,278,216,218,219,220,221,222,223,224,225,226,227,228,229,230,232,233,234,235,236,237,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,217,175,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,176,177,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,104,108,116,117,118,119,120,121,123,124,126,127,128,129,130,131,132,133,134,135,72,88,93,95,96,97,98,99,100,102,103,105,106,107,109,110,111,112,113,114,41,44,68,70,74,75,77,79,81,82,83,84,85,86,87,89,90,91,92,94,15,23,34,35,37,39,40,48,50,56,59,62,63,64,65,67,69,71,73,76,6,10,12,16,20,22,24,25,26,28,29,33,38,42,45,49,51,52,55,58,1,4,7,9,13,14,18,19,21,27,30,32,36,43,46,47,53,57,61,66,2,3,5,11,17,31,54,60,78,80,101,115,122,125,136,240,242,246,248,250,8,241,243,245,249,251,252,253,254,255,257,259,260,261,262,264,244],"Model":["max_diam_solid","prop_solid","color_score","age","oncology_center","family_history","bilateral","pain","acoustic_shadows","ca125","ireg_walls","locules_gt_10","papillary_count","ascites","papillary_presence","max_diam_lesion","max_diam_lesion, prop_solid","locules_gt_10, prop_solid","locules_gt_10, max_diam_solid","max_diam_lesion, max_diam_solid","oncology_center, max_diam_solid","ascites, max_diam_solid","acoustic_shadows, max_diam_solid","color_score, max_diam_solid","age, max_diam_solid","ireg_walls, max_diam_solid","ascites, prop_solid","papillary_count, max_diam_solid","color_score, prop_solid","pain, max_diam_solid","max_diam_solid, papillary_presence","ireg_walls, prop_solid","family_history, max_diam_solid","age, prop_solid","max_diam_solid, prop_solid","oncology_center, prop_solid","locules_gt_10, max_diam_lesion, prop_solid","oncology_center, max_diam_lesion, prop_solid","locules_gt_10, oncology_center, max_diam_solid","max_diam_lesion, acoustic_shadows, prop_solid","max_diam_lesion, papillary_count, prop_solid","max_diam_lesion, ascites, prop_solid","max_diam_lesion, ireg_walls, prop_solid","age, max_diam_lesion, prop_solid","max_diam_lesion, color_score, prop_solid","max_diam_lesion, papillary_presence, prop_solid","locules_gt_10, acoustic_shadows, max_diam_solid","max_diam_lesion, pain, prop_solid","locules_gt_10, max_diam_lesion, max_diam_solid","locules_gt_10, papillary_count, prop_solid","locules_gt_10, papillary_presence, prop_solid","family_history, max_diam_lesion, prop_solid","locules_gt_10, ascites, prop_solid","max_diam_lesion, max_diam_solid, prop_solid","oncology_center, color_score, max_diam_solid","family_history, locules_gt_10, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, prop_solid","oncology_center, max_diam_lesion, color_score, prop_solid","locules_gt_10, max_diam_lesion, acoustic_shadows, prop_solid","locules_gt_10, oncology_center, acoustic_shadows, max_diam_solid","locules_gt_10, max_diam_lesion, papillary_count, prop_solid","max_diam_lesion, acoustic_shadows, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, prop_solid","locules_gt_10, max_diam_lesion, ascites, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, max_diam_solid","locules_gt_10, max_diam_lesion, papillary_presence, prop_solid","locules_gt_10, max_diam_lesion, ireg_walls, prop_solid","locules_gt_10, oncology_center, ascites, max_diam_solid","oncology_center, max_diam_lesion, ascites, prop_solid","oncology_center, max_diam_lesion, papillary_count, prop_solid","age, locules_gt_10, max_diam_lesion, prop_solid","locules_gt_10, oncology_center, color_score, max_diam_solid","locules_gt_10, max_diam_lesion, pain, prop_solid","age, max_diam_lesion, color_score, prop_solid","max_diam_lesion, acoustic_shadows, ascites, prop_solid","age, max_diam_lesion, acoustic_shadows, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, color_score, prop_solid","age, oncology_center, max_diam_lesion, color_score, prop_solid","oncology_center, max_diam_lesion, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, color_score, prop_solid","oncology_center, max_diam_lesion, papillary_count, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, prop_solid","age, max_diam_lesion, acoustic_shadows, color_score, prop_solid","max_diam_lesion, acoustic_shadows, ireg_walls, color_score, prop_solid","oncology_center, max_diam_lesion, color_score, papillary_presence, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, ascites, prop_solid","oncology_center, max_diam_lesion, ascites, color_score, prop_solid","locules_gt_10, oncology_center, acoustic_shadows, color_score, max_diam_solid","locules_gt_10, max_diam_lesion, acoustic_shadows, color_score, prop_solid","locules_gt_10, max_diam_lesion, acoustic_shadows, ascites, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, color_score, max_diam_solid","locules_gt_10, oncology_center, acoustic_shadows, ascites, max_diam_solid","locules_gt_10, oncology_center, max_diam_lesion, ireg_walls, prop_solid","locules_gt_10, max_diam_lesion, papillary_count, ascites, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ascites, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, color_score, prop_solid","oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, prop_solid","age, oncology_center, max_diam_lesion, papillary_count, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, color_score, prop_solid","oncology_center, max_diam_lesion, ascites, ireg_walls, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ascites, color_score, prop_solid","age, oncology_center, max_diam_lesion, ireg_walls, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, color_score, papillary_presence, prop_solid","age, oncology_center, max_diam_lesion, color_score, papillary_presence, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, color_score, pain, prop_solid","age, oncology_center, max_diam_lesion, ascites, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, ireg_walls, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, bilateral, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, color_score, max_diam_solid","family_history, oncology_center, max_diam_lesion, acoustic_shadows, color_score, prop_solid","age, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, color_score, papillary_presence, prop_solid","oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, color_score, papillary_presence, prop_solid","oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, bilateral, color_score, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, color_score, pain, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, ascites, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, color_score, pain, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ascites, color_score, papillary_presence, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, pain, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, papillary_presence, prop_solid","family_history, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, prop_solid","age, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, color_score, papillary_presence, prop_solid","oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, color_score, papillary_presence, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, color_score, prop_solid","age, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, bilateral, color_score, prop_solid","oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, ascites, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, color_score, prop_solid","age, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, pain, prop_solid","age, family_history, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, bilateral, color_score, prop_solid","age, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, max_diam_solid, prop_solid","family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, bilateral, color_score, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, color_score, papillary_presence, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, papillary_presence, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ireg_walls, color_score, prop_solid","age, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, pain, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, pain, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, color_score, papillary_presence, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, prop_solid","family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, max_diam_solid, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, prop_solid","locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, pain, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, max_diam_solid, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, color_score, pain, prop_solid","family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, max_diam_solid, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, max_diam_solid, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, prop_solid","family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, max_diam_solid, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, max_diam_solid, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, pain, max_diam_solid, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, prop_solid","age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, oncology_center, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, family_history, locules_gt_10, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, ca125, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, papillary_presence, prop_solid","age, ca125, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, prop_solid","age, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence","age, ca125, family_history, locules_gt_10, oncology_center, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid","age, ca125, family_history, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, max_diam_solid, papillary_presence, prop_solid"],"n_Preds":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16],"AUC":[0.87373487534149,0.837010194385112,0.817671373514398,0.714336720330675,0.633633382386812,0.512192541362754,0.587909042594127,0.53840594429406,0.567752743705066,0.829499923800902,0.680552569604449,0.545631405224186,0.589953866611454,0.661599604234368,0.581118248349751,0.663875802945293,0.890307188135726,0.853259237363746,0.884131765902406,0.891774427260111,0.886912328021745,0.895520155866029,0.899271212627607,0.908532313922081,0.892769125868327,0.892397738221619,0.875142150467314,0.881041491852356,0.895209169773029,0.875981586134434,0.878462405519589,0.85883379323016,0.87455901470958,0.869148451018139,0.878411396269288,0.861697719440769,0.890141626462819,0.897794076449563,0.896198732085278,0.912517395989844,0.896371413848098,0.910336389055323,0.902717467462375,0.900773318865936,0.916959208686429,0.893187483261482,0.907993301277393,0.890736313038511,0.893394086542296,0.859862027987685,0.853119102478591,0.891244507755403,0.88822495585451,0.892496640988318,0.918599384032516,0.854784753673336,0.899210600256436,0.925267229300864,0.913836089706965,0.915922828510168,0.896835986635438,0.927193591042197,0.917324184431482,0.911037661387229,0.900901971174142,0.893399012297649,0.903912758026145,0.912834614774308,0.915314949802048,0.904112826279442,0.901196043607127,0.922113587569847,0.89073124109656,0.922674451983584,0.925514360256392,0.919881133583005,0.933779603354563,0.931002505624243,0.931606012291792,0.919283335599708,0.92581782002012,0.929775915670316,0.905927239517179,0.932249364860449,0.932980749663088,0.927731475713652,0.916864897272473,0.93392816054818,0.931123140537666,0.927723800198964,0.927019649264633,0.932365301279943,0.927496384218885,0.911320980807496,0.917631497223622,0.928934958692265,0.938673801862118,0.938571468925728,0.93435509997786,0.93684971289872,0.935279747118626,0.93148306079555,0.939802949405262,0.94080859412654,0.937128105802164,0.935519247316078,0.93343062918154,0.930702426671258,0.923267416926844,0.934020757222918,0.937829401370027,0.932160524754449,0.936867355953881,0.930484984639074,0.933341078316402,0.933902108480725,0.941753468562117,0.945270804999603,0.939181310757216,0.943045460663181,0.93896880487269,0.937636459737452,0.940223649425541,0.94445138370031,0.941590567042488,0.935580645005277,0.93614584757889,0.939533914696636,0.941302685528759,0.938605029907354,0.944000590554368,0.934624383651803,0.942799997169501,0.938831507750803,0.938547260394244,0.938759947530288,0.945806578144201,0.942116647273196,0.945161295797166,0.943387668202212,0.947557949760244,0.940547214328846,0.946363987071244,0.946759302904712,0.943524408053606,0.948327116494324,0.940093119198368,0.943839500518513,0.941883808514552,0.945537702318072,0.942879208117951,0.944552979209572,0.941735385535545,0.941773553766991,0.945203909311621,0.943055205338517,0.947974842104917,0.948805014090735,0.946969919355334,0.947311433523658,0.944151424997452,0.94677675882695,0.946106087460136,0.945544964556063,0.942463150263617,0.945859024963195,0.945346295387,0.942035141228787,0.94458338708647,0.942150138342372,0.946508790288852,0.945827537899009,0.943287494588995,0.945797586130007,0.943398790487924,0.949397035661716,0.949757054738423,0.949456194261901,0.948512640758833,0.949879894525331,0.947967166824488,0.948020668141399,0.947886886422118,0.948167504819689,0.948773523961287,0.947168017328962,0.948773404677958,0.946392511302604,0.948794223229167,0.944652091219678,0.947612660632779,0.950616375831898,0.947084539207749,0.947008971653973,0.94884130851791,0.944156168290128,0.951060351622048,0.950124035980551,0.949776189537741,0.949592166535195,0.950060525524547,0.949829235092449,0.948799668907217,0.949457364129353,0.950008067799953,0.9493328869726,0.949916695311127,0.946890746347804,0.949927249664128,0.949602728324921,0.948252575757354,0.946792995991842,0.947987347183119,0.948550249707907,0.948826928856842,0.949879466320524,0.951171706046571,0.951328538292546,0.95135572456878,0.951082675157471,0.950131500867243,0.950282383978601,0.950133739178175,0.950107818519736,0.949601330280489,0.950069880358457,0.949827581164537,0.949440734407741,0.950078351433244,0.94881917920535,0.949709815551373,0.950129534752964,0.947017094327384,0.949995134378453,0.950053496622011,0.949338277386181,0.951506694763864,0.951169092965636,0.951546105093139,0.951512032771362,0.951377629222109,0.951363654161854,0.950158408073549,0.950341449995293,0.950390881733537,0.950059262367902,0.950176640532329,0.950160475280329,0.949415799682259,0.95007397756313,0.949696364134722,0.947248241643598,0.947012036214366,0.949541420013273,0.950042761537498,0.946849277635278,0.951516954302772,0.951546990425493,0.951734681565356,0.951557534800089,0.950429047588064,0.950208776823762,0.947275420981032,0.949531732631981,0.949255323050306,0.951215202058844,0.949611697271479,0.947285685402122,0.944324553331024,0.948913179053626,0.947385610456921,0.954680305011649,0.954605708946554,0.953917817600511,0.954721666843856,0.954501712094937,0.951756094929671,0.954829733372901,0.954620093722899,0.95468776571668,0.953930884975283,0.954731929693105,0.954253284641295,0.953485493777315,0.953170015211548,0.952686105064127,0.954040596052943,0.951844895801502,0.952708254348068,0.952497190640343,0.94872779756373,0.951697262867366,0.954852495776229],"Brier":[0.125980635290887,0.143876176156032,0.153877228731955,0.193643809760535,0.205085501186024,0.219000117131164,0.210429014081965,0.218137611279543,0.211917152319997,0.14040899514483,0.193748333502912,0.214576159071176,0.205255754592729,0.172527940142131,0.21189814887811,0.20412478471277,0.123984642568526,0.139529137548142,0.125155520817439,0.124496330542044,0.12193838468069,0.115421995271162,0.109623932291749,0.109788830704778,0.120384009407554,0.118682446396578,0.126859687339951,0.120821347005063,0.119286716832978,0.125788207667312,0.12321276509785,0.137306086634279,0.125778053539038,0.134927591847019,0.125924498477285,0.137091865168612,0.123118651089621,0.119858464710583,0.120356374760799,0.107908097053202,0.11912680837752,0.112775526836125,0.116440289500157,0.118365735954188,0.10740324348096,0.121401552076466,0.109131571748108,0.123796176816132,0.1237586350351,0.136256889865749,0.139384072186276,0.12379008012743,0.123260788765208,0.123795664583395,0.10349081595928,0.139367557684065,0.118503445981507,0.101196745985619,0.107281688506252,0.105574470176306,0.118151510354497,0.0983393535274715,0.104887126100264,0.112000256223759,0.119195065820615,0.120515920262664,0.115588926207927,0.11046468108383,0.109526043860943,0.115016282732434,0.117925109783679,0.102677027929313,0.122908343563214,0.103834256044739,0.100832961254031,0.10462646642485,0.0934261584390576,0.0973931744651876,0.0959798328981596,0.103874834672085,0.100879870216512,0.0975026473077191,0.113628450968993,0.0955418391945868,0.0944063271103028,0.0988641262694904,0.108408317215397,0.0947276608107578,0.0947628632487355,0.0982491496284776,0.100258859201279,0.0941636457967824,0.0991384882618741,0.111121695771842,0.106732354544917,0.0983258823819284,0.0899287777523548,0.0904802925339221,0.0931235172135361,0.0907330443198087,0.0940095584274996,0.0973117743519753,0.0895132497897457,0.0886789299389681,0.0927296395548908,0.0919832214415495,0.0954249284482296,0.0974761115865227,0.100609163317951,0.0931053724235136,0.0919943201043686,0.0956625922271434,0.0918801520691933,0.0971070870570572,0.0938639513887587,0.0934248025865173,0.0879067063356914,0.0847756003105776,0.0896179116810713,0.0873316970280728,0.0903931642489884,0.0903527910028391,0.0891947846745058,0.0853425652556508,0.0884382826474412,0.093862926223514,0.0916384307699353,0.0891116853391915,0.0882794091580479,0.0904504645965063,0.0863904149958795,0.0928107585701694,0.0866926017492139,0.0896534135931507,0.0899321792290041,0.0899448812540558,0.0845134055017235,0.087762802870298,0.0850570177334094,0.0872574127868475,0.0832959761770543,0.0890726717633096,0.083689757492149,0.0839705748408659,0.0864237623480474,0.0828945193477962,0.0887629915063859,0.0865220444818553,0.0879911591538643,0.084469011480054,0.0879668023594851,0.0863421494143908,0.0878866477923541,0.0879276275298056,0.0858255560758981,0.087321761371486,0.0831938086279841,0.0828014858788104,0.0834060900449102,0.0836923485153584,0.0864118193215615,0.0840335829494775,0.0842065615047062,0.0857705091643753,0.0874925036544953,0.0845321821806831,0.0847878082724531,0.0877479979325032,0.0861187573063313,0.0877826392076948,0.0845681100410978,0.0845151236008797,0.0873048587976254,0.0844406228269875,0.0872738019089488,0.0818649031279834,0.0817441734959451,0.0821924257274518,0.0825363654941576,0.0819992686299238,0.0831110745974757,0.0832247509231226,0.0832925497100308,0.0830177867393035,0.0827075838317302,0.0831318364883442,0.0827823992299516,0.0848490658752062,0.082826183772993,0.0859998711929017,0.0833364635379273,0.0810039410428758,0.083727429314225,0.0834314419342397,0.0827921030401312,0.0864340359846779,0.0808947488554572,0.0814923177129447,0.0817799235652755,0.0820770292241623,0.0814327448411663,0.0816596441701853,0.0822224177691459,0.0822333658209963,0.081857813066884,0.0823100648735284,0.0819808510576885,0.0844625913106769,0.0819897949779193,0.0820006017101099,0.0829272719591612,0.0844093519241712,0.0831465831639577,0.0825606721190595,0.0826956258932705,0.0820228567273968,0.0807677970993765,0.0805381693653258,0.0806557525089242,0.0809322690358962,0.0815094643341067,0.0812939625362688,0.0813804778777484,0.0814534544618318,0.082125497406355,0.081849433771758,0.0817009243611061,0.082187317838095,0.0818339202715208,0.0822567783556159,0.081868154275715,0.0813262210007267,0.0843836652241006,0.0818870598324842,0.0818461931056805,0.0823477776437493,0.0804925871289561,0.0808130429538806,0.0803776333903527,0.0804107075308802,0.0806777102287591,0.0805630303333136,0.0814016879256363,0.0812990444698294,0.0811636114999972,0.0818902491165555,0.0816986414495215,0.0813523578772552,0.0822321012038119,0.0818593203264411,0.0819105581859566,0.0840824333590146,0.0844221010733319,0.0819769136552783,0.0818721720328597,0.0843929978702282,0.0805215889045309,0.0804097489714781,0.0802180301322046,0.0804216404019916,0.0811729063406629,0.0817310821716916,0.0841129829668059,0.0820162195243791,0.0816768605905735,0.0803694158122895,0.0810829896624152,0.0842166308576909,0.0871617139416038,0.0819771187045467,0.0837604168914421,0.0774525898311083,0.0775101911259389,0.0784240823665089,0.0773829426589444,0.0776467520274792,0.080235835914706,0.077270233584567,0.0775023201697797,0.0774624475185624,0.0784311062430711,0.0773864510340901,0.0776301120056986,0.0785709073578721,0.0786426877465213,0.0782820515283115,0.0776517862749557,0.0796862696918119,0.0784553839572141,0.0786922600806147,0.0827159280050713,0.0794426205619728,0.0772681919551279],"Total_Cost":[0.00500365123411713,0.00500365123411713,0.00500365123411713,0,0,0,0,0,0.00500365123411713,0.0125091280852928,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.00500365123411713,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.00500365123411713,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941,0.01751277931941],"Avg_Adj_Net_Benefit":[0.274802647954401,0.273204070080108,0.260462224001216,0.247915299691102,0.24587923728536,0.244281171166647,0.244281171166647,0.244281171166647,0.244192290304414,0.243349309945161,0.239518665338285,0.23927751993253,0.23927751993253,0.23927751993253,0.23927751993253,0.238636014223069,0.281119982768553,0.280702759637583,0.280150420588386,0.27805920452645,0.277197846597566,0.276931473652583,0.27634346275401,0.275963335536977,0.275708395292905,0.275573483406692,0.275218157261476,0.2752145108407,0.275131108369855,0.27505629101245,0.274725089713836,0.274697390366276,0.274599210327858,0.274565942477909,0.274505277520069,0.274295377577674,0.283289845981736,0.28295089988245,0.282791763334953,0.282355607846197,0.282011513501906,0.281889607517722,0.281720993050878,0.281664534693315,0.281536716768419,0.281340560905549,0.281283394297788,0.281280794308582,0.281277416640752,0.281181894080097,0.281056074878124,0.281040483428368,0.281033952259462,0.280849832774711,0.2807986052705,0.280792632083906,0.284651563226922,0.284510718706555,0.284160261447618,0.284108921379204,0.284044864406989,0.284027703582806,0.283934803610364,0.283930836171942,0.283585575903193,0.283573941907344,0.283571515024091,0.283527095466598,0.283473733420566,0.283460812527347,0.283421900914173,0.283407335929499,0.283405194492681,0.283374667785927,0.283305793133862,0.28327994162304,0.286343653358746,0.286175068389655,0.285800503387656,0.285701386804166,0.285504100354478,0.285436095267472,0.285393823201754,0.28534797730252,0.285253200959921,0.285220541254444,0.285175164868192,0.285122682450707,0.285116813311759,0.285095901302711,0.285072905175957,0.285020199924113,0.284950458001507,0.284877653064381,0.284853248865029,0.284852492209452,0.28741182519449,0.287285925148522,0.287259578363023,0.287098473152672,0.28701089147794,0.286875525786184,0.286827406299659,0.286814413614338,0.286705150336266,0.286700562946844,0.286567440563181,0.286550559330453,0.286527068957665,0.286526544560903,0.286453420181649,0.286435542089177,0.286416473766983,0.286363247496083,0.286319758505417,0.286314622513749,0.288261723358069,0.288240537780493,0.288183239453321,0.28815341112522,0.288027715721611,0.287980581441784,0.287949321101186,0.287945556619759,0.287843243529107,0.287780495771367,0.287752619258386,0.287739916277654,0.28765081268343,0.287589653593439,0.287573935180296,0.2874749942122,0.287470313865736,0.287468795605783,0.287461672543334,0.287461229912232,0.289005750035836,0.288972908205947,0.288862930279442,0.288855471389971,0.288726414119304,0.288618516908691,0.288581557067154,0.288553237465172,0.288526758925272,0.288517013780881,0.288461487157218,0.288426537728313,0.288409369442593,0.288397789817396,0.288376233900801,0.288363965091043,0.28833134656378,0.288296252587171,0.288289222520724,0.288281163371321,0.289559777586095,0.289340279184929,0.289290472675866,0.28919285553211,0.289180753498557,0.289139159749607,0.289123850535096,0.289113873135653,0.289082487036652,0.28904143930921,0.289019859226385,0.288995341234522,0.288994407320253,0.288983106225828,0.288964430612298,0.288962671829531,0.288933615636542,0.288925495846427,0.288913982074733,0.288908280136611,0.289773401718575,0.289767815936392,0.289580285028976,0.289566503858598,0.289552027599244,0.289549930263557,0.289501725605457,0.289483018259568,0.289456978862436,0.289450789365721,0.289443980980766,0.28942817959041,0.289405168631971,0.289387126018895,0.289343246806397,0.289340136393257,0.289338543885515,0.289326884976897,0.28930940522725,0.289246651430694,0.290160981287004,0.289976542640061,0.289828047264832,0.289820374525993,0.289800290837646,0.289778435951967,0.289774916473608,0.289748757681608,0.28974339234514,0.289690912809555,0.289676569400907,0.289650131271517,0.289629617098599,0.289622107797849,0.289601102095292,0.289598458540978,0.28956981462898,0.289561991375729,0.289555882911432,0.289537230910673,0.29030659386371,0.290256185469318,0.290233359729294,0.290115518199227,0.290040658181239,0.290011339579732,0.289974706692876,0.289896928386595,0.289862899015578,0.289849257232116,0.289845889298241,0.289828538872813,0.289784318532188,0.289771354312852,0.289764594456749,0.289743994441747,0.289724009642799,0.289723120868299,0.289692643252827,0.289676661750055,0.290397830382978,0.290323784212297,0.290300486102027,0.290272445727266,0.290202579858967,0.290173460043159,0.290101254357288,0.290045106195947,0.290030585799062,0.289852044333107,0.289840135479767,0.289833385655121,0.28981669035924,0.289769473958886,0.289762215651552,0.289750010473498,0.289711719006976,0.289677341847254,0.289658234390336,0.28959860855336,0.290355368478918,0.290334613504211,0.290318901405543,0.290247253969305,0.290108991926145,0.289835611784447,0.289696809073147,0.289667250556812,0.289484594450583,0.289468198579622,0.289069449119623,0.288895957170867,0.288551329501896,0.288505306684653,0.288263799041346,0.278200049711393,0.27818267237733,0.278086482723379,0.278047482824194,0.278013475754101,0.290283414435472,0.278191755976734,0.278163717330928,0.278138373463561,0.278045208567608,0.277928399608967,0.277903568050565,0.277652283519928,0.277355181306164,0.277294906196739,0.277087511645184,0.276861364922197,0.276771148689405,0.276490076610978,0.276476938784127,0.27621284412393,0.278152401893846],"Avg_Net_Benefit":[0.279806299188518,0.278207721314225,0.265465875235333,0.247915299691102,0.24587923728536,0.244281171166647,0.244281171166647,0.244281171166647,0.249195941538531,0.255858438030454,0.244522316572402,0.244281171166647,0.244281171166647,0.244281171166647,0.244281171166647,0.243639665457186,0.28612363400267,0.2857064108717,0.285154071822503,0.283062855760567,0.282201497831683,0.2819351248867,0.281347113988127,0.280966986771094,0.280712046527022,0.280577134640809,0.280221808495593,0.280218162074817,0.280134759603973,0.280059942246567,0.279728740947953,0.279701041600394,0.279602861561975,0.279569593712026,0.279508928754186,0.279299028811791,0.288293497215853,0.287954551116567,0.28779541456907,0.287359259080314,0.287015164736023,0.286893258751839,0.286724644284995,0.286668185927432,0.286540368002536,0.286344212139666,0.286287045531905,0.2862844455427,0.286281067874869,0.286185545314215,0.286059726112241,0.286044134662485,0.286037603493579,0.285853484008828,0.285802256504617,0.285796283318023,0.289655214461039,0.289514369940673,0.289163912681735,0.289112572613322,0.289048515641106,0.289031354816923,0.288938454844481,0.288934487406059,0.28858922713731,0.288577593141462,0.288575166258208,0.288530746700715,0.288477384654683,0.288464463761464,0.28842555214829,0.288410987163616,0.288408845726799,0.288378319020044,0.288309444367979,0.288283592857157,0.291347304592863,0.291178719623772,0.290804154621773,0.290705038038284,0.290507751588595,0.290439746501589,0.290397474435871,0.290351628536638,0.290256852194038,0.290224192488562,0.29017881610231,0.290126333684824,0.290120464545876,0.290099552536828,0.290076556410074,0.29002385115823,0.289954109235625,0.289881304298498,0.289856900099146,0.289856143443569,0.292415476428607,0.292289576382639,0.29226322959714,0.292102124386789,0.292014542712057,0.291879177020301,0.291831057533776,0.291818064848455,0.291708801570383,0.291704214180961,0.291571091797298,0.29155421056457,0.291530720191782,0.29153019579502,0.291457071415766,0.291439193323294,0.2914201250011,0.2913668987302,0.291323409739534,0.291318273747867,0.293265374592186,0.29324418901461,0.293186890687438,0.293157062359337,0.293031366955728,0.292984232675901,0.292952972335304,0.292949207853876,0.292846894763224,0.292784147005484,0.292756270492503,0.292743567511772,0.292654463917547,0.292593304827556,0.292577586414413,0.292478645446317,0.292473965099853,0.2924724468399,0.292465323777451,0.292464881146349,0.294009401269953,0.293976559440064,0.293866581513559,0.293859122624088,0.293730065353421,0.293622168142808,0.293585208301271,0.29355688869929,0.293530410159389,0.293520665014998,0.293465138391335,0.29343018896243,0.29341302067671,0.293401441051513,0.293379885134918,0.29336761632516,0.293334997797897,0.293299903821289,0.293292873754841,0.293284814605438,0.294563428820212,0.294343930419046,0.294294123909983,0.294196506766227,0.294184404732674,0.294142810983724,0.294127501769213,0.29411752436977,0.29408613827077,0.294045090543327,0.294023510460502,0.293998992468639,0.29399805855437,0.293986757459945,0.293968081846415,0.293966323063648,0.293937266870659,0.293929147080544,0.29391763330885,0.293911931370728,0.294777052952692,0.29477146717051,0.294583936263094,0.294570155092715,0.294555678833361,0.294553581497674,0.294505376839574,0.294486669493685,0.294460630096553,0.294454440599838,0.294447632214883,0.294431830824527,0.294408819866088,0.294390777253012,0.294346898040514,0.294343787627374,0.294342195119632,0.294330536211015,0.294313056461368,0.294250302664811,0.295164632521122,0.294980193874179,0.294831698498949,0.29482402576011,0.294803942071763,0.294782087186084,0.294778567707725,0.294752408915725,0.294747043579257,0.294694564043672,0.294680220635024,0.294653782505634,0.294633268332716,0.294625759031966,0.294604753329409,0.294602109775095,0.294573465863097,0.294565642609846,0.294559534145549,0.29454088214479,0.295310245097827,0.295259836703435,0.295237010963411,0.295119169433344,0.295044309415356,0.295014990813849,0.294978357926993,0.294900579620712,0.294866550249695,0.294852908466234,0.294849540532358,0.29483219010693,0.294787969766305,0.294775005546969,0.294768245690866,0.294747645675864,0.294727660876916,0.294726772102416,0.294696294486945,0.294680312984172,0.295401481617096,0.295327435446415,0.295304137336145,0.295276096961383,0.295206231093084,0.295177111277276,0.295104905591406,0.295048757430064,0.295034237033179,0.294855695567224,0.294843786713884,0.294837036889238,0.294820341593358,0.294773125193003,0.294765866885669,0.294753661707615,0.294715370241093,0.294680993081371,0.294661885624453,0.294602259787478,0.295359019713036,0.295338264738328,0.29532255263966,0.295250905203423,0.295112643160262,0.294839263018564,0.294700460307264,0.294670901790929,0.2944882456847,0.294471849813739,0.294073100353741,0.293899608404984,0.293554980736013,0.293508957918771,0.293267450275463,0.295712829030803,0.29569545169674,0.295599262042789,0.295560262143604,0.295526255073511,0.29528706566959,0.295704535296144,0.295676496650338,0.295651152782971,0.295557987887018,0.295441178928377,0.295416347369975,0.295165062839338,0.294867960625574,0.294807685516149,0.294600290964594,0.294374144241607,0.294283928008815,0.294002855930387,0.293989718103537,0.29372562344334,0.295665181213256]},"columns":[{"id":"Rank_adj_NB","name":"Rank (Adj. NB)","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"Model","name":"Included predictors","type":"character","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"left"},{"id":"n_Preds","name":"N","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","html":true,"align":"right"},{"id":"AUC","name":"AUC","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["0.874","0.837","0.818","0.714","0.634","0.512","0.588","0.538","0.568","0.829","0.681","0.546","0.590","0.662","0.581","0.664","0.890","0.853","0.884","0.892","0.887","0.896","0.899","0.909","0.893","0.892","0.875","0.881","0.895","0.876","0.878","0.859","0.875","0.869","0.878","0.862","0.890","0.898","0.896","0.913","0.896","0.910","0.903","0.901","0.917","0.893","0.908","0.891","0.893","0.860","0.853","0.891","0.888","0.892","0.919","0.855","0.899","0.925","0.914","0.916","0.897","0.927","0.917","0.911","0.901","0.893","0.904","0.913","0.915","0.904","0.901","0.922","0.891","0.923","0.926","0.920","0.934","0.931","0.932","0.919","0.926","0.930","0.906","0.932","0.933","0.928","0.917","0.934","0.931","0.928","0.927","0.932","0.927","0.911","0.918","0.929","0.939","0.939","0.934","0.937","0.935","0.931","0.940","0.941","0.937","0.936","0.933","0.931","0.923","0.934","0.938","0.932","0.937","0.930","0.933","0.934","0.942","0.945","0.939","0.943","0.939","0.938","0.940","0.944","0.942","0.936","0.936","0.940","0.941","0.939","0.944","0.935","0.943","0.939","0.939","0.939","0.946","0.942","0.945","0.943","0.948","0.941","0.946","0.947","0.944","0.948","0.940","0.944","0.942","0.946","0.943","0.945","0.942","0.942","0.945","0.943","0.948","0.949","0.947","0.947","0.944","0.947","0.946","0.946","0.942","0.946","0.945","0.942","0.945","0.942","0.947","0.946","0.943","0.946","0.943","0.949","0.950","0.949","0.949","0.950","0.948","0.948","0.948","0.948","0.949","0.947","0.949","0.946","0.949","0.945","0.948","0.951","0.947","0.947","0.949","0.944","0.951","0.950","0.950","0.950","0.950","0.950","0.949","0.949","0.950","0.949","0.950","0.947","0.950","0.950","0.948","0.947","0.948","0.949","0.949","0.950","0.951","0.951","0.951","0.951","0.950","0.950","0.950","0.950","0.950","0.950","0.950","0.949","0.950","0.949","0.950","0.950","0.947","0.950","0.950","0.949","0.952","0.951","0.952","0.952","0.951","0.951","0.950","0.950","0.950","0.950","0.950","0.950","0.949","0.950","0.950","0.947","0.947","0.950","0.950","0.947","0.952","0.952","0.952","0.952","0.950","0.950","0.947","0.950","0.949","0.951","0.950","0.947","0.944","0.949","0.947","0.955","0.955","0.954","0.955","0.955","0.952","0.955","0.955","0.955","0.954","0.955","0.954","0.953","0.953","0.953","0.954","0.952","0.953","0.952","0.949","0.952","0.955"],"html":true,"align":"right"},{"id":"Brier","name":"Brier Score","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["0.126","0.144","0.154","0.194","0.205","0.219","0.210","0.218","0.212","0.140","0.194","0.215","0.205","0.173","0.212","0.204","0.124","0.140","0.125","0.124","0.122","0.115","0.110","0.110","0.120","0.119","0.127","0.121","0.119","0.126","0.123","0.137","0.126","0.135","0.126","0.137","0.123","0.120","0.120","0.108","0.119","0.113","0.116","0.118","0.107","0.121","0.109","0.124","0.124","0.136","0.139","0.124","0.123","0.124","0.103","0.139","0.119","0.101","0.107","0.106","0.118","0.098","0.105","0.112","0.119","0.121","0.116","0.110","0.110","0.115","0.118","0.103","0.123","0.104","0.101","0.105","0.093","0.097","0.096","0.104","0.101","0.098","0.114","0.096","0.094","0.099","0.108","0.095","0.095","0.098","0.100","0.094","0.099","0.111","0.107","0.098","0.090","0.090","0.093","0.091","0.094","0.097","0.090","0.089","0.093","0.092","0.095","0.097","0.101","0.093","0.092","0.096","0.092","0.097","0.094","0.093","0.088","0.085","0.090","0.087","0.090","0.090","0.089","0.085","0.088","0.094","0.092","0.089","0.088","0.090","0.086","0.093","0.087","0.090","0.090","0.090","0.085","0.088","0.085","0.087","0.083","0.089","0.084","0.084","0.086","0.083","0.089","0.087","0.088","0.084","0.088","0.086","0.088","0.088","0.086","0.087","0.083","0.083","0.083","0.084","0.086","0.084","0.084","0.086","0.087","0.085","0.085","0.088","0.086","0.088","0.085","0.085","0.087","0.084","0.087","0.082","0.082","0.082","0.083","0.082","0.083","0.083","0.083","0.083","0.083","0.083","0.083","0.085","0.083","0.086","0.083","0.081","0.084","0.083","0.083","0.086","0.081","0.081","0.082","0.082","0.081","0.082","0.082","0.082","0.082","0.082","0.082","0.084","0.082","0.082","0.083","0.084","0.083","0.083","0.083","0.082","0.081","0.081","0.081","0.081","0.082","0.081","0.081","0.081","0.082","0.082","0.082","0.082","0.082","0.082","0.082","0.081","0.084","0.082","0.082","0.082","0.080","0.081","0.080","0.080","0.081","0.081","0.081","0.081","0.081","0.082","0.082","0.081","0.082","0.082","0.082","0.084","0.084","0.082","0.082","0.084","0.081","0.080","0.080","0.080","0.081","0.082","0.084","0.082","0.082","0.080","0.081","0.084","0.087","0.082","0.084","0.077","0.078","0.078","0.077","0.078","0.080","0.077","0.078","0.077","0.078","0.077","0.078","0.079","0.079","0.078","0.078","0.080","0.078","0.079","0.083","0.079","0.077"],"html":true,"align":"right"},{"id":"Total_Cost","name":"Total Cost","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["0.005","0.005","0.005","0.000","0.000","0.000","0.000","0.000","0.005","0.013","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.005","0.018","0.018","0.018","0.018","0.018","0.005","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018","0.018"],"html":true,"align":"right"},{"id":"Avg_Adj_Net_Benefit","name":"Avg. Adj. NB","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["0.275","0.273","0.260","0.248","0.246","0.244","0.244","0.244","0.244","0.243","0.240","0.239","0.239","0.239","0.239","0.239","0.281","0.281","0.280","0.278","0.277","0.277","0.276","0.276","0.276","0.276","0.275","0.275","0.275","0.275","0.275","0.275","0.275","0.275","0.275","0.274","0.283","0.283","0.283","0.282","0.282","0.282","0.282","0.282","0.282","0.281","0.281","0.281","0.281","0.281","0.281","0.281","0.281","0.281","0.281","0.281","0.285","0.285","0.284","0.284","0.284","0.284","0.284","0.284","0.284","0.284","0.284","0.284","0.283","0.283","0.283","0.283","0.283","0.283","0.283","0.283","0.286","0.286","0.286","0.286","0.286","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.285","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.287","0.286","0.286","0.286","0.286","0.286","0.286","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.287","0.287","0.287","0.287","0.287","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.290","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.289","0.289","0.289","0.289","0.289","0.289","0.288","0.278","0.278","0.278","0.278","0.278","0.290","0.278","0.278","0.278","0.278","0.278","0.278","0.278","0.277","0.277","0.277","0.277","0.277","0.276","0.276","0.276","0.278"],"html":true,"align":"right"},{"id":"Avg_Net_Benefit","name":"Avg. NB","type":"numeric","na":"NA","minWidth":125,"style":"function(rowInfo, colInfo) {\nconst rowIndex = rowInfo.index + 1\n}","cell":["0.280","0.278","0.265","0.248","0.246","0.244","0.244","0.244","0.249","0.256","0.245","0.244","0.244","0.244","0.244","0.244","0.286","0.286","0.285","0.283","0.282","0.282","0.281","0.281","0.281","0.281","0.280","0.280","0.280","0.280","0.280","0.280","0.280","0.280","0.280","0.279","0.288","0.288","0.288","0.287","0.287","0.287","0.287","0.287","0.287","0.286","0.286","0.286","0.286","0.286","0.286","0.286","0.286","0.286","0.286","0.286","0.290","0.290","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.289","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.288","0.291","0.291","0.291","0.291","0.291","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.290","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.292","0.291","0.291","0.291","0.291","0.291","0.291","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.292","0.292","0.292","0.292","0.292","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.293","0.295","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.294","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.295","0.294","0.294","0.294","0.294","0.294","0.294","0.293","0.296","0.296","0.296","0.296","0.296","0.295","0.296","0.296","0.296","0.296","0.295","0.295","0.295","0.295","0.295","0.295","0.294","0.294","0.294","0.294","0.294","0.296"],"html":true,"align":"right"}],"filterable":true,"defaultPageSize":10,"showPageSizeOptions":false,"pageSizeOptions":[10,25,50,100],"paginationType":"numbers","showPagination":true,"showPageInfo":true,"minRows":1,"compact":true,"height":"auto","theme":{"color":"#333333","backgroundColor":"#FFFFFF","stripedColor":"rgba(128,128,128,0.05)","style":{"font-family":"system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif","fontSize":"16px"},"tableStyle":{"borderTopStyle":"solid","borderTopWidth":"2px","borderTopColor":"#D3D3D3"},"headerStyle":{"fontWeight":"normal","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"groupHeaderStyle":{"fontWeight":"normal","backgroundColor":"transparent","borderBottomStyle":"solid","borderBottomWidth":"2px","borderBottomColor":"#D3D3D3"},"cellStyle":{"fontWeight":"normal"}},"elementId":"xrrljijhhn","dataKey":"c9894f2edee9976dc24dde91f21d3a0b"},"children":[]},"class":"reactR_markup"},"evals":["tag.attribs.columns.0.style","tag.attribs.columns.1.style","tag.attribs.columns.2.style","tag.attribs.columns.3.style","tag.attribs.columns.4.style","tag.attribs.columns.5.style","tag.attribs.columns.6.style","tag.attribs.columns.7.style"],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section><section class="level3" data-number="4.2.3"><h4 data-number="4.2.3" id="visualisation-1">
+<span class="header-section-number">4.2.3</span> Visualisation<a class="anchor" aria-label="anchor" href="#visualisation-1"></a>
+</h4>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/VIF_plot.html">VIF_plot</a></span><span class="op">(</span><span class="va">adnex_results</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-adnex-vif" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-adnex-vif-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nb-varsel-tutorial_files/figure-html/fig-adnex-vif-1.png" width="1650">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-adnex-vif-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 9: Variable importance for the ADNEX case study. Bars show the average drop in Net Benefit when each predictor is permuted.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-adnex-vif" class="quarto-xref">Figure 9</a> shows that the proportion solid component and colour score are the most important predictors for clinical utility, followed by maximum lesion diameter and oncology centre status.</p>
+<div class="cell">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/all_subset_plot.html">all_subset_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">adnex_results</span>,</span>
+<span>  filter <span class="op">=</span> <span class="fl">7</span>,</span>
+<span>  size_dot <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/all_subset_plot.html">all_subset_plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">adnex_results</span>,</span>
+<span>  filter <span class="op">=</span> <span class="fl">7</span>,</span>
+<span>  size_dot <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  metric <span class="op">=</span> <span class="st">"Avg_Adj_Net_Benefit"</span>,</span>
+<span>  y_axis <span class="op">=</span> <span class="st">"Adjusted Net Benefit"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<div id="fig-adnex-subset-1" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-adnex-subset-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nb-varsel-tutorial_files/figure-html/fig-adnex-subset-1.png" width="1920">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-adnex-subset-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 10: All subset plot (Net Benefit) for the ADNEX case study.
+</figcaption></figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-adnex-subset-2" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-adnex-subset-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nb-varsel-tutorial_files/figure-html/fig-adnex-subset-2.png" width="1920">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-adnex-subset-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure 11: All subset plot (cost-adjusted Net Benefit) for the ADNEX case study.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-adnex-subset-1" class="quarto-xref">Figure 10</a> and <a href="#fig-adnex-subset-2" class="quarto-xref">Figure 11</a> show the all-subset plots. The heatmap indicates which predictors are included in each model. The best model’s predictors are highlighted in bold. Note that cost adjustment changes the ranking: models that include the blood biomarker (CA-125) are penalised, shifting the optimum toward models relying on ultrasound and clinical history alone.</p>
+</section></section></section><section class="section level2" data-number="5"><h2 data-number="5" id="summary">
+<span class="header-section-number">5</span> Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <p>This vignette demonstrated the <code>NBvarsel</code> workflow:</p>
 <ol type="1">

@@ -11,6 +11,8 @@ variable importance.
 
 Useful links:
 
+- <https://lasaibarrenada.github.io/NB_varsel/>
+
 - <https://github.com/LasaiBarrenada/NB_varsel>
 
 - Report bugs at <https://github.com/LasaiBarrenada/NB_varsel/issues>

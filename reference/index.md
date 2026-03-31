@@ -11,3 +11,8 @@
   : All-Subset Model Comparison Plot
 - [`VIF_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/VIF_plot.md)
   : Permutation Importance Bar Plot
+
+## Data
+
+- [`adnex_results`](https://lasaibarrenada.github.io/NB_varsel/reference/adnex_results.md)
+  : ADNEX Exhaustive Variable Selection Results
