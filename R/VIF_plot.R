@@ -12,7 +12,11 @@
 #' @param color Character string. Fill color for the bars. Defaults to
 #'   `"#2A6EBB"`.
 #'
-#' @return A [ggplot2::ggplot] object.
+#' @return A list containing two elements:
+#' \describe{
+#'   \item{plot}{A [ggplot2::ggplot] object of the bar chart.}
+#'   \item{data}{A data frame containing the `Variable` and `Average_Delta_NB` values.}
+#' }
 #'
 #' @examples
 #' \dontrun{
@@ -21,9 +25,14 @@
 #'   mode = "exhaustive", permutation = TRUE,
 #'   splines = FALSE, allow_parallel = FALSE
 #' )
-#' VIF_plot(result$all_models)
+#' vif_results <- VIF_plot(result$all_models)
+#' 
+#' # View the plot
+#' print(vif_results$plot)
+#' 
+#' # View the values
+#' print(vif_results$data)
 #' }
-#'
 #' @export
 VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB") {
   if (!is.null(filter)) {
@@ -44,7 +53,7 @@ VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB") {
     Average_Delta_NB = unname(vif_means)
   )
 
-  ggplot2::ggplot(
+  p <- ggplot2::ggplot(
     plot_df,
     ggplot2::aes(
       x = stats::reorder(.data$Variable, -.data$Average_Delta_NB),
@@ -56,4 +65,6 @@ VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB") {
     ggplot2::ylab(expression("Average" ~ Delta ~ "NB")) +
     ggplot2::theme_classic() +
     ggplot2::coord_flip()
+  
+  return(list(plot = p, data = plot_df))
 }

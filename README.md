@@ -84,7 +84,9 @@ all_subset_plot(
 )
 
 # Permutation importance bar chart
-VIF_plot(result$all_models, color = "darkgreen")
+vif_results <- VIF_plot(result$all_models, color = "darkgreen")
+vif_results$plot
+head(vif_results$data)
 ```
 
 ## Documentation
@@ -98,7 +100,7 @@ Full documentation and vignettes are available at
 |---|---|
 | `nb_varsel()` | Variable selection via cross-validated Net Benefit |
 | `all_subset_plot()` | Two-panel model comparison visualisation |
-| `VIF_plot()` | Permutation importance bar chart |
+| `VIF_plot()` | Permutation importance output (plot + table) |
 
 ## References
 

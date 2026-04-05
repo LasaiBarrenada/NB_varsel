@@ -19,7 +19,11 @@ Defaults to \code{NULL} (use all models).}
 \code{"#2A6EBB"}.}
 }
 \value{
-A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+A list containing two elements:
+\describe{
+\item{plot}{A \link[ggplot2:ggplot]{ggplot2::ggplot} object of the bar chart.}
+\item{data}{A data frame containing the \code{Variable} and \code{Average_Delta_NB} values.}
+}
 }
 \description{
 Creates a horizontal bar chart showing the average permutation importance
@@ -32,7 +36,13 @@ result <- nb_varsel(
   mode = "exhaustive", permutation = TRUE,
   splines = FALSE, allow_parallel = FALSE
 )
-VIF_plot(result$all_models)
+vif_results <- VIF_plot(result$all_models)
+
+# View the plot
+print(vif_results$plot)
+
+# View the values
+print(vif_results$data)
 }
 
 }

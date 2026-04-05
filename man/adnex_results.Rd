@@ -74,6 +74,6 @@ attr(adnex_results, "best_model_stats")
 
 # Visualise
 all_subset_plot(adnex_results, filter = 7, size_dot = 1)
-VIF_plot(adnex_results)
+VIF_plot(adnex_results)$plot
 }
 \keyword{datasets}
