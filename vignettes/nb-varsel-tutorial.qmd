@@ -150,7 +150,7 @@ The variable importance of each feature is shown in @fig-simple-illustration-1, 
 #|   - "Net benefit based variable importance for the simple illustration."
 #|   - "All subset plot for the simple illustration."
 
-VIF_plot(tbl_train) +
+VIF_plot(tbl_train)$plot +
   theme(axis.text.x = element_text(angle = 0, hjust = 1))
 
 all_subset_plot(
@@ -366,7 +366,7 @@ tbl
 VIF_plot(
   exhaustive_results$all_models,
   filter = round(nrow(exhaustive_results$all_models) * 0.1)
-)
+)$plot
 ```
 
 @fig-case-vif shows the variable importance based on the average Net Benefit contribution. Predictors are ranked from most to least important.
@@ -447,7 +447,7 @@ groupwise$best_model_stats |>
 #| fig-height: 3.2
 #| fig-cap: "Variable importance (groupwise selection)"
 
-VIF_plot(groupwise$all_models)
+VIF_plot(groupwise$all_models)$plot
 ```
 
 ## Comparison with other methods {#sec-comparison}
@@ -835,7 +835,7 @@ tbl
 #| fig-height: 3.2
 #| fig-cap: "Variable importance for the ADNEX case study. Bars show the average drop in Net Benefit when each predictor is permuted."
 
-VIF_plot(adnex_results)
+VIF_plot(adnex_results)$plot
 ```
 
 @fig-adnex-vif shows that the proportion solid component and colour score are the most important predictors for clinical utility, followed by maximum lesion diameter and oncology centre status.
