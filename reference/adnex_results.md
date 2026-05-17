@@ -154,5 +154,5 @@ attr(adnex_results, "best_model_stats")
 all_subset_plot(adnex_results, filter = 7, size_dot = 1)
 #> Filtered to best 7 per number of predictors.
 
-VIF_plot(adnex_results)
+VIF_plot(adnex_results)$plot
 ```

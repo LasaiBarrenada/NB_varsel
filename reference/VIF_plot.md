@@ -30,8 +30,17 @@ VIF_plot(all_models, filter = NULL, color = "#2A6EBB")
 
 ## Value
 
-A [ggplot2::ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html)
-object.
+A list containing two elements:
+
+- plot:
+
+  A
+  [ggplot2::ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html)
+  object of the bar chart.
+
+- data:
+
+  A data frame containing the `Variable` and `Average_Delta_NB` values.
 
 ## Examples
 
@@ -42,6 +51,12 @@ result <- nb_varsel(
   mode = "exhaustive", permutation = TRUE,
   splines = FALSE, allow_parallel = FALSE
 )
-VIF_plot(result$all_models)
+vif_results <- VIF_plot(result$all_models)
+
+# View the plot
+print(vif_results$plot)
+
+# View the values
+print(vif_results$data)
 } # }
 ```

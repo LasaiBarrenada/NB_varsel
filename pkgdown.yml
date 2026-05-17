@@ -1,9 +1,9 @@
-pandoc: 3.1.11
+pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   nb-varsel-tutorial: nb-varsel-tutorial.html
-last_built: 2026-03-31T07:25Z
+last_built: 2026-05-17T13:08Z
 urls:
   reference: https://lasaibarrenada.github.io/NB_varsel/reference
   article: https://lasaibarrenada.github.io/NB_varsel/articles

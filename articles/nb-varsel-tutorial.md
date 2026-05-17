@@ -31,15 +31,17 @@ decision-making, optionally adjusted for test harms. It supports:
 > in the code.
 
 Let us consider a hypothetical scenario with four predictors, two
-continuous ($X_{1}$, $X_{3}$) and two binary ($X_{2}$, $X_{4}$), used to
-predict a binary outcome $Y$. The true data-generating model is:
+continuous ($`X_1`$, $`X_3`$) and two binary ($`X_2`$, $`X_4`$), used to
+predict a binary outcome $`Y`$. The true data-generating model is:
 
-$$\text{logit}(Y) = -3 + 3X_{1} + 2X_{2} + 0.1X_{3} - 0.05X_{4}\qquad(1)$$
+``` math
+\text{logit}(Y) = -3 + 3X_1 + 2X_2 + 0.1X_3 - 0.05X_4 \qquad(1)
+```
 
-In this model, $X_{1}$ and $X_{2}$ are strongly predictive, $X_{3}$ and
-$X_{4}$ are weakly predictive, and the outcome has a prevalence of
+In this model, $`X_1`$ and $`X_2`$ are strongly predictive, $`X_3`$ and
+$`X_4`$ are weakly predictive, and the outcome has a prevalence of
 approximately 64%. Each predictor is associated with a test harm:
-$X_{1}$ and $X_{3}$ (harm = 0.05), $X_{2}$ (harm = 0.025), and $X_{4}$
+$`X_1`$ and $`X_3`$ (harm = 0.05), $`X_2`$ (harm = 0.025), and $`X_4`$
 (harm = 0.00005).
 
 ### 2.1 Data generation
@@ -47,6 +49,7 @@ $X_{1}$ and $X_{3}$ (harm = 0.05), $X_{2}$ (harm = 0.025), and $X_{4}$
 Code
 
 ``` r
+
 set.seed(42)
 n <- 1000
 
@@ -72,6 +75,7 @@ Using backward elimination based on Wald’s statistic, as implemented in
 Code
 
 ``` r
+
 model_full <- lrm(Y ~ X1 + X2 + X3 + X4, data = df)
 bw_result <- fastbw(model_full)
 sprintf("Backward elimination retains: %s", paste(bw_result$names.kept, collapse = ", "))
@@ -84,6 +88,7 @@ sprintf("Backward elimination retains: %s", paste(bw_result$names.kept, collapse
 Code
 
 ``` r
+
 exhaustive <- nb_varsel(
   data = df,
   outcome_var = "Y",
@@ -105,6 +110,7 @@ exhaustive <- nb_varsel(
 Code
 
 ``` r
+
 tbl_train <- exhaustive$all_models
 
 tbl_train |>
@@ -125,23 +131,23 @@ tbl_train |>
   )
 ```
 
-| Included predictors | AUC   | Brier Score | Total Cost | Avg. Adj. Net Benefit | Avg. Net Benefit |
-|---------------------|-------|-------------|------------|-----------------------|------------------|
-| X1, X4              | 0.906 | 0.115       | 0.05005    | 0.104                 | 0.154            |
-| X1                  | 0.907 | 0.114       | 0.05000    | 0.102                 | 0.152            |
-| X1, X2              | 0.925 | 0.102       | 0.07500    | 0.099                 | 0.174            |
-| X1, X2, X4          | 0.925 | 0.102       | 0.07505    | 0.099                 | 0.174            |
-| X1, X3              | 0.906 | 0.114       | 0.10000    | 0.056                 | 0.156            |
-| X1, X3, X4          | 0.906 | 0.114       | 0.10005    | 0.055                 | 0.155            |
-| X1, X2, X3, X4      | 0.925 | 0.102       | 0.12505    | 0.049                 | 0.174            |
-| X1, X2, X3          | 0.925 | 0.101       | 0.12500    | 0.048                 | 0.173            |
-| X4                  | 0.521 | 0.217       | 0.00005    | 0.000                 | 0.000            |
-| X2                  | 0.589 | 0.210       | 0.02500    | −0.025                | 0.000            |
-| X2, X4              | 0.571 | 0.211       | 0.02505    | −0.025                | 0.000            |
-| X3                  | 0.532 | 0.217       | 0.05000    | −0.050                | 0.000            |
-| X3, X4              | 0.520 | 0.217       | 0.05005    | −0.050                | 0.000            |
-| X2, X3              | 0.607 | 0.210       | 0.07500    | −0.075                | 0.000            |
-| X2, X3, X4          | 0.593 | 0.211       | 0.07505    | −0.075                | 0.000            |
+| Included predictors | AUC | Brier Score | Total Cost | Avg. Adj. Net Benefit | Avg. Net Benefit |
+|----|----|----|----|----|----|
+| X1, X4 | 0.906 | 0.115 | 0.05005 | 0.104 | 0.154 |
+| X1 | 0.907 | 0.114 | 0.05000 | 0.102 | 0.152 |
+| X1, X2 | 0.925 | 0.102 | 0.07500 | 0.099 | 0.174 |
+| X1, X2, X4 | 0.925 | 0.102 | 0.07505 | 0.099 | 0.174 |
+| X1, X3 | 0.906 | 0.114 | 0.10000 | 0.056 | 0.156 |
+| X1, X3, X4 | 0.906 | 0.114 | 0.10005 | 0.055 | 0.155 |
+| X1, X2, X3, X4 | 0.925 | 0.102 | 0.12505 | 0.049 | 0.174 |
+| X1, X2, X3 | 0.925 | 0.101 | 0.12500 | 0.048 | 0.173 |
+| X4 | 0.521 | 0.217 | 0.00005 | 0.000 | 0.000 |
+| X2 | 0.589 | 0.210 | 0.02500 | −0.025 | 0.000 |
+| X2, X4 | 0.571 | 0.211 | 0.02505 | −0.025 | 0.000 |
+| X3 | 0.532 | 0.217 | 0.05000 | −0.050 | 0.000 |
+| X3, X4 | 0.520 | 0.217 | 0.05005 | −0.050 | 0.000 |
+| X2, X3 | 0.607 | 0.210 | 0.07500 | −0.075 | 0.000 |
+| X2, X3, X4 | 0.593 | 0.211 | 0.07505 | −0.075 | 0.000 |
 
 Table 1: Results for the simple illustration. Models are ranked by
 cost-adjusted Net Benefit.
@@ -151,14 +157,15 @@ The variable importance of each feature is shown in
 contributors to utility. In [Figure 2](#fig-simple-illustration-2), the
 all-subset plot shows the evolution of the average adjusted Net Benefit
 across all possible combinations. It is immediately apparent that
-including $X_{1}$ improves performance. This simple illustration
+including $`X_1`$ improves performance. This simple illustration
 demonstrates how the best subset of predictors in statistical terms does
 not necessarily translate to better cost-utility.
 
 Code
 
 ``` r
-VIF_plot(tbl_train) +
+
+VIF_plot(tbl_train)$plot +
   theme(axis.text.x = element_text(angle = 0, hjust = 1))
 
 all_subset_plot(
@@ -201,6 +208,7 @@ days vs. not). Predictors are grouped into three cost categories:
 Code
 
 ``` r
+
 # Clean up simple illustration objects to avoid namespace conflicts
 rm(list = setdiff(ls(), lsf.str()))
 
@@ -259,6 +267,7 @@ sprintf("Training prevalence: %.1f%%", 100 * mean(training_data$readmitted))
 Code
 
 ``` r
+
 sprintf("Test prevalence: %.1f%%", 100 * mean(test_data$readmitted))
 ```
 
@@ -272,6 +281,7 @@ Costs are defined as grouped costs. The group cost is added once if
 Code
 
 ``` r
+
 prevalence <- mean(test_data$readmitted)
 
 grouped_costs <- list(
@@ -299,6 +309,7 @@ grouped_costs <- list(
 Code
 
 ``` r
+
 vars <- names(training_data)
 
 start_time <- Sys.time()
@@ -320,13 +331,14 @@ end_time <- Sys.time()
 sprintf("Exhaustive search took: %s", format(end_time - start_time))
 ```
 
-    [1] "Exhaustive search took: 4.265587 mins"
+    [1] "Exhaustive search took: 1.763164 mins"
 
 #### 3.3.1 Best model
 
 Code
 
 ``` r
+
 exhaustive_results$best_model_stats |>
   select(Model, AUC, Brier, Total_Cost, Avg_Adj_Net_Benefit, Avg_Net_Benefit) |>
   gt() |>
@@ -344,9 +356,9 @@ exhaustive_results$best_model_stats |>
   )
 ```
 
-| Included predictors                                                                                                          | AUC   | Brier Score | Total Cost | Avg. Adj. Net Benefit | Avg. Net Benefit |
-|------------------------------------------------------------------------------------------------------------------------------|-------|-------------|------------|-----------------------|------------------|
-| patient_age, prior_admission, ejection_fraction, valve_abnormalities, pericardial_effusion, chamber_dilation, wall_thickness | 0.896 | 0.122       | 0.011      | 0.285                 | 0.296            |
+| Included predictors | AUC | Brier Score | Total Cost | Avg. Adj. Net Benefit | Avg. Net Benefit |
+|----|----|----|----|----|----|
+| patient_age, prior_admission, ejection_fraction, valve_abnormalities, pericardial_effusion, chamber_dilation, wall_thickness | 0.896 | 0.122 | 0.011 | 0.285 | 0.296 |
 
 Table 2: Best model from exhaustive search
 
@@ -355,6 +367,7 @@ Table 2: Best model from exhaustive search
 Code
 
 ``` r
+
 all_models <- exhaustive_results$all_models
 all_models$Rank_NB <- rank(-all_models$Avg_Net_Benefit, ties.method = "min")
 all_models$Rank_adj_NB <- rank(-all_models$Avg_Adj_Net_Benefit, ties.method = "min")
@@ -401,10 +414,11 @@ Table 3: All models from exhaustive search
 Code
 
 ``` r
+
 VIF_plot(
   exhaustive_results$all_models,
   filter = round(nrow(exhaustive_results$all_models) * 0.1)
-)
+)$plot
 ```
 
 ![](nb-varsel-tutorial_files/figure-html/fig-case-vif-1.png)
@@ -418,6 +432,7 @@ least important.
 Code
 
 ``` r
+
 all_subset_plot(
   exhaustive_results$all_models,
   filter = 7,
@@ -451,6 +466,7 @@ when costs are accounted for.
 Code
 
 ``` r
+
 start_time <- Sys.time()
 groupwise <- nb_varsel(
   data = training_data,
@@ -470,11 +486,12 @@ end_time <- Sys.time()
 sprintf("Groupwise search took: %s", format(end_time - start_time))
 ```
 
-    [1] "Groupwise search took: 18.23173 secs"
+    [1] "Groupwise search took: 15.13899 secs"
 
 Code
 
 ``` r
+
 groupwise$best_model_stats |>
   select(Model, AUC, Brier, Total_Cost, Avg_Adj_Net_Benefit, Avg_Net_Benefit) |>
   gt() |>
@@ -492,16 +509,17 @@ groupwise$best_model_stats |>
   )
 ```
 
-| Included predictors                                                                                                                             | AUC   | Brier Score | Total Cost | Avg. Adj. NB | Avg. NB |
-|-------------------------------------------------------------------------------------------------------------------------------------------------|-------|-------------|------------|--------------|---------|
-| patient_age, prior_admission, specialist_centre, ejection_fraction, valve_abnormalities, pericardial_effusion, chamber_dilation, wall_thickness | 0.895 | 0.122       | 0.011      | 0.285        | 0.295   |
+| Included predictors | AUC | Brier Score | Total Cost | Avg. Adj. NB | Avg. NB |
+|----|----|----|----|----|----|
+| patient_age, prior_admission, specialist_centre, ejection_fraction, valve_abnormalities, pericardial_effusion, chamber_dilation, wall_thickness | 0.895 | 0.122 | 0.011 | 0.285 | 0.295 |
 
 Table 4: Groupwise selection: best model
 
 Code
 
 ``` r
-VIF_plot(groupwise$all_models)
+
+VIF_plot(groupwise$all_models)$plot
 ```
 
 ![](nb-varsel-tutorial_files/figure-html/fig-case-group-vif-1.png)
@@ -516,6 +534,7 @@ We compare the NB-based variable selection with backward elimination
 Code
 
 ``` r
+
 preds <- setdiff(vars, "readmitted")
 
 # --- Backward elimination ---
@@ -570,6 +589,7 @@ test_data$adj_nb_pred <- plogis(predict(model_adj_nb, newdata = test_data))
 Code
 
 ``` r
+
 sprintf("NB model retains: %s", paste(preds_best_nb, collapse = ", "))
 ```
 
@@ -578,6 +598,7 @@ sprintf("NB model retains: %s", paste(preds_best_nb, collapse = ", "))
 Code
 
 ``` r
+
 sprintf("Adjusted NB model retains: %s", paste(preds_best_adj, collapse = ", "))
 ```
 
@@ -586,6 +607,7 @@ sprintf("Adjusted NB model retains: %s", paste(preds_best_adj, collapse = ", "))
 Code
 
 ``` r
+
 sprintf("Backward elimination retains: %s", paste(bw$names.kept, collapse = ", "))
 ```
 
@@ -594,6 +616,7 @@ sprintf("Backward elimination retains: %s", paste(bw$names.kept, collapse = ", "
 Code
 
 ``` r
+
 sprintf("LASSO retains: %s", paste(lasso_kept, collapse = ", "))
 ```
 
@@ -604,6 +627,7 @@ sprintf("LASSO retains: %s", paste(lasso_kept, collapse = ", "))
 Code
 
 ``` r
+
 auc_results <- data.frame(
   Method = c("NB Model", "Adjusted NB Model", "Backward elimination", "LASSO"),
   AUC = c(
@@ -640,6 +664,7 @@ Table 5: AUC on test data for each variable selection method
 Code
 
 ``` r
+
 thresholds <- seq(0.01, 0.30, by = 0.005)
 n_test_obs <- nrow(test_data)
 y_test <- test_data$readmitted
@@ -798,6 +823,7 @@ clinical workflow:
 Code
 
 ``` r
+
 vars <- c(
   "malignant", "age", "ca125", "family_history", "locules_gt_10",
   "oncology_center", "max_diam_lesion", "papillary_count",
@@ -838,6 +864,7 @@ splines (3 knots) and permutation importance.
 Code
 
 ``` r
+
 exhaustive_results <- nb_varsel(
   data = training_data[, vars],
   outcome_var = "malignant",
@@ -857,6 +884,7 @@ The pre-computed results are available as a shipped dataset:
 Code
 
 ``` r
+
 data(adnex_results)
 ```
 
@@ -865,6 +893,7 @@ data(adnex_results)
 Code
 
 ``` r
+
 best <- attr(adnex_results, "best_model_stats")
 
 best |>
@@ -887,9 +916,9 @@ best |>
   )
 ```
 
-| Included predictors                                                                                                                                                        | N   | AUC   | Brier Score | Total Cost | Avg. Adj. NB | Avg. NB |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----|-------|-------------|------------|--------------|---------|
-| age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid | 13  | 0.952 | 0.080       | 0.005      | 0.290        | 0.295   |
+| Included predictors | N | AUC | Brier Score | Total Cost | Avg. Adj. NB | Avg. NB |
+|----|----|----|----|----|----|----|
+| age, locules_gt_10, oncology_center, max_diam_lesion, papillary_count, acoustic_shadows, ascites, ireg_walls, bilateral, color_score, pain, papillary_presence, prop_solid | 13 | 0.952 | 0.080 | 0.005 | 0.290 | 0.295 |
 
 Table 6: Best model from the ADNEX exhaustive search (ranked by
 cost-adjusted Net Benefit)
@@ -904,6 +933,7 @@ contributed little utility relative to their cost.
 Code
 
 ``` r
+
 adnex_results$Rank_adj_NB <- rank(
   -adnex_results$Avg_Adj_Net_Benefit, ties.method = "min"
 )
@@ -949,7 +979,8 @@ Table 7: Top models per predictor count from the ADNEX exhaustive search
 Code
 
 ``` r
-VIF_plot(adnex_results)
+
+VIF_plot(adnex_results)$plot
 ```
 
 ![](nb-varsel-tutorial_files/figure-html/fig-adnex-vif-1.png)
@@ -964,6 +995,7 @@ followed by maximum lesion diameter and oncology centre status.
 Code
 
 ``` r
+
 all_subset_plot(
   adnex_results,
   filter = 7,

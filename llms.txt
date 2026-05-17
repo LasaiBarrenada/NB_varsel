@@ -22,6 +22,7 @@ metrics like p-values. It supports:
 You can install the development version of NBvarsel from GitHub:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("LasaiBarrenada/NB_varsel")
 ```
@@ -29,12 +30,14 @@ pak::pak("LasaiBarrenada/NB_varsel")
 Alternatively, install from a source tarball (`.tar.gz`):
 
 ``` r
+
 install.packages("NBvarsel_0.1.0.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Quick Start
 
 ``` r
+
 library(NBvarsel)
 
 # Simulate data
@@ -70,6 +73,7 @@ result$all_models
 ### Visualisation
 
 ``` r
+
 # Two-panel plot: metric overview + predictor inclusion heatmap
 all_subset_plot(result$all_models)
 
@@ -81,7 +85,9 @@ all_subset_plot(
 )
 
 # Permutation importance bar chart
-VIF_plot(result$all_models, color = "darkgreen")
+vif_results <- VIF_plot(result$all_models, color = "darkgreen")
+vif_results$plot
+head(vif_results$data)
 ```
 
 ## Documentation
@@ -91,11 +97,11 @@ Full documentation and vignettes are available at
 
 ## Functions
 
-| Function                                                                                       | Description                                        |
-|------------------------------------------------------------------------------------------------|----------------------------------------------------|
-| [`nb_varsel()`](https://lasaibarrenada.github.io/NB_varsel/reference/nb_varsel.md)             | Variable selection via cross-validated Net Benefit |
-| [`all_subset_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/all_subset_plot.md) | Two-panel model comparison visualisation           |
-| [`VIF_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/VIF_plot.md)               | Permutation importance bar chart                   |
+| Function | Description |
+|----|----|
+| [`nb_varsel()`](https://lasaibarrenada.github.io/NB_varsel/reference/nb_varsel.md) | Variable selection via cross-validated Net Benefit |
+| [`all_subset_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/all_subset_plot.md) | Two-panel model comparison visualisation |
+| [`VIF_plot()`](https://lasaibarrenada.github.io/NB_varsel/reference/VIF_plot.md) | Permutation importance output (plot + table) |
 
 ## References
 
