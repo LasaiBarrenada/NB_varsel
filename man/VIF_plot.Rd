@@ -44,5 +44,4 @@ print(vif_results$plot)
 # View the values
 print(vif_results$data)
 }
-
 }
