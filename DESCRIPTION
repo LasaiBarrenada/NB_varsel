@@ -1,10 +1,27 @@
 Package: NBvarsel
 Title: Variable Selection via Cross-Validated Net Benefit
 Version: 0.1.0
-Authors@R: 
+Authors@R: c(
     person("Lasai", "Barreñada", , "lasai.barrenadataleb@kuleuven.be",
            role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-8020-0210"))
+           comment = c(ORCID = "0000-0001-8020-0210",
+                       "Department of Development and Regeneration ; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium")),
+    person("Laure", "Wynants", role = "aut",
+           comment = c(ORCID = "0000-0002-3037-122X",
+                       "Department of Development and Regeneration, KU Leuven, Belgium; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium; Department of Epidemiology, CAPHRI Care and Public Health Research Institute, Maastricht University, Maastricht, Netherlands")),
+    person("Ewout W.", "Steyerberg", role = "aut",
+           comment = c(ORCID = "0000-0002-7787-0122",
+                       "Julius Centre for Health Sciences and Primary Care, University Medical Centre Utrecht, Utrecht, Netherlands")),
+    person("Dirk", "Timmerman", role = "aut",
+           comment = c(ORCID = "0000-0002-3707-6645",
+                       "Department of Development and Regeneration, KU Leuven, Belgium")),
+    person("Andrew", "Vickers", role = "aut",
+           comment = c(ORCID = "0000-0003-1525-6503",
+                       "Department of Epidemiology and Biostatistics, Memorial Sloan Kettering Cancer Center, New York, NY, USA")),
+    person("Ben", "Van Calster", role = "aut",
+           comment = c(ORCID = "0000-0001-8020-0210",
+                       "Department of Development and Regeneration, KU Leuven, Belgium; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium; Julius Centre for Health Sciences and Primary Care, University Medical Centre Utrecht, Utrecht, Netherlands"))
+  )
 Description: Performs exhaustive or groupwise (backward elimination) variable
     selection for binary outcome prediction models using cross-validated Net
     Benefit as the optimization criterion. Supports predictor costs, restricted

@@ -18,7 +18,16 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Lasai Barreñada \email{lasai.barrenadataleb@kuleuven.be} (\href{https://orcid.org/0000-0001-8020-0210}{ORCID})
+\strong{Maintainer}: Lasai Barreñada \email{lasai.barrenadataleb@kuleuven.be} (\href{https://orcid.org/0000-0001-8020-0210}{ORCID}) (Department of Development and Regeneration ; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium)
+
+Authors:
+\itemize{
+  \item Laure Wynants (\href{https://orcid.org/0000-0002-3037-122X}{ORCID}) (Department of Development and Regeneration, KU Leuven, Belgium; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium; Department of Epidemiology, CAPHRI Care and Public Health Research Institute, Maastricht University, Maastricht, Netherlands)
+  \item Ewout W. Steyerberg (\href{https://orcid.org/0000-0002-7787-0122}{ORCID}) (Julius Centre for Health Sciences and Primary Care, University Medical Centre Utrecht, Utrecht, Netherlands)
+  \item Dirk Timmerman (\href{https://orcid.org/0000-0002-3707-6645}{ORCID}) (Department of Development and Regeneration, KU Leuven, Belgium)
+  \item Andrew Vickers (\href{https://orcid.org/0000-0003-1525-6503}{ORCID}) (Department of Epidemiology and Biostatistics, Memorial Sloan Kettering Cancer Center, New York, NY, USA)
+  \item Ben Van Calster (\href{https://orcid.org/0000-0001-8020-0210}{ORCID}) (Department of Development and Regeneration, KU Leuven, Belgium; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium; Julius Centre for Health Sciences and Primary Care, University Medical Centre Utrecht, Utrecht, Netherlands)
+}
 
 }
 \keyword{internal}
