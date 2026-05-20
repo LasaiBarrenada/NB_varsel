@@ -32,7 +32,7 @@ pak::pak("LasaiBarrenada/NB_varsel")
 Alternatively, install from a source tarball (`.tar.gz`):
 
 ```r
-install.packages("NBvarsel_0.1.0.tar.gz", repos = NULL, type = "source")
+install.packages("NBvarsel_0.2.0.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Quick Start
