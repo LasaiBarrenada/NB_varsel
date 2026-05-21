@@ -57,7 +57,7 @@ A data frame with 293 rows and 23 columns:
 
 ## Source
 
-IOTA consortium data (phases 1–3). See <https://www.iotagroup.org/> for
+IOTA consortium data (phases 1–3). See <https://iotaplus.org/en> for
 information about the IOTA studies.
 
 ## Details
