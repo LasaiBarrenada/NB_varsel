@@ -72,17 +72,14 @@ all_subset_plot(
 ## Value
 
 A
-[patchwork::patchwork](https://patchwork.data-imaginist.com/reference/patchwork-package.html)
+[patchwork](https://patchwork.data-imaginist.com/reference/patchwork-package.html)
 object (two stacked ggplot panels).
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-result <- nb_varsel(
-  data = df, outcome_var = "Y", costs = harms,
-  mode = "exhaustive", splines = FALSE, allow_parallel = FALSE
-)
-all_subset_plot(result$all_models)
-} # }
+data(adnex_results)
+all_subset_plot(adnex_results)
+#> Filtered to best 5 per number of predictors.
+
 ```

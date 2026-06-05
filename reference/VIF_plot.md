@@ -45,18 +45,16 @@ A list containing two elements:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-result <- nb_varsel(
-  data = df, outcome_var = "Y", costs = harms,
-  mode = "exhaustive", permutation = TRUE,
-  splines = FALSE, allow_parallel = FALSE
-)
-vif_results <- VIF_plot(result$all_models)
+data(adnex_results)
+vif_results <- VIF_plot(adnex_results)
+vif_results$plot
 
-# View the plot
-print(vif_results$plot)
-
-# View the values
-print(vif_results$data)
-} # }
+head(vif_results$data)
+#>           Variable Average_Delta_NB
+#> 1       prop_solid      0.050336541
+#> 2   max_diam_solid      0.029713935
+#> 3  max_diam_lesion      0.009729310
+#> 4      color_score      0.009400117
+#> 5 acoustic_shadows      0.004271808
+#> 6            ca125      0.004059608
 ```

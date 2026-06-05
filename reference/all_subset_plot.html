@@ -114,18 +114,15 @@ or <code>NULL</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <a href="https://patchwork.data-imaginist.com/reference/patchwork-package.html" class="external-link">patchwork::patchwork</a> object (two stacked ggplot panels).</p>
+    <p>A <a href="https://patchwork.data-imaginist.com/reference/patchwork-package.html" class="external-link">patchwork</a> object (two stacked ggplot panels).</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="nb_varsel.html">nb_varsel</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="va">df</span>, outcome_var <span class="op">=</span> <span class="st">"Y"</span>, costs <span class="op">=</span> <span class="va">harms</span>,</span></span>
-<span class="r-in"><span>  mode <span class="op">=</span> <span class="st">"exhaustive"</span>, splines <span class="op">=</span> <span class="cn">FALSE</span>, allow_parallel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">all_subset_plot</span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">all_models</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">adnex_results</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">all_subset_plot</span><span class="op">(</span><span class="va">adnex_results</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Filtered to best 5 per number of predictors.</span>
+<span class="r-plt img"><img src="all_subset_plot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
