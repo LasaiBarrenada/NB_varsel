@@ -30,18 +30,8 @@ Creates a horizontal bar chart showing the average permutation importance
 (delta Net Benefit) for each predictor across the evaluated models.
 }
 \examples{
-\dontrun{
-result <- nb_varsel(
-  data = df, outcome_var = "Y", costs = harms,
-  mode = "exhaustive", permutation = TRUE,
-  splines = FALSE, allow_parallel = FALSE
-)
-vif_results <- VIF_plot(result$all_models)
-
-# View the plot
-print(vif_results$plot)
-
-# View the values
-print(vif_results$data)
-}
+data(adnex_results)
+vif_results <- VIF_plot(adnex_results)
+vif_results$plot
+head(vif_results$data)
 }

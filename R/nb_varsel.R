@@ -49,7 +49,6 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
 #' set.seed(42)
 #' n <- 500
 #' df <- data.frame(
@@ -66,7 +65,6 @@
 #'   allow_parallel = FALSE
 #' )
 #' result$best_model_stats
-#' }
 #'
 #' @export
 nb_varsel <- function(

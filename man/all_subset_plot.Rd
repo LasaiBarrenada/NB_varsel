@@ -44,7 +44,7 @@ the heatmap panel. Defaults to \code{"#2A6EBB"}.}
 or \code{NULL}.}
 }
 \value{
-A \link[patchwork:patchwork-package]{patchwork::patchwork} object (two stacked ggplot panels).
+A \link[patchwork:patchwork]{patchwork} object (two stacked ggplot panels).
 }
 \description{
 Creates a two-panel figure: the top panel shows a performance metric
@@ -53,12 +53,7 @@ metric value), and the bottom panel shows a heatmap of which predictors
 are included in each model.
 }
 \examples{
-\dontrun{
-result <- nb_varsel(
-  data = df, outcome_var = "Y", costs = harms,
-  mode = "exhaustive", splines = FALSE, allow_parallel = FALSE
-)
-all_subset_plot(result$all_models)
-}
+data(adnex_results)
+all_subset_plot(adnex_results)
 
 }

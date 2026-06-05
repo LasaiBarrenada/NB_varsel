@@ -26,13 +26,8 @@
 #' @return A [patchwork] object (two stacked ggplot panels).
 #'
 #' @examples
-#' \dontrun{
-#' result <- nb_varsel(
-#'   data = df, outcome_var = "Y", costs = harms,
-#'   mode = "exhaustive", splines = FALSE, allow_parallel = FALSE
-#' )
-#' all_subset_plot(result$all_models)
-#' }
+#' data(adnex_results)
+#' all_subset_plot(adnex_results)
 #'
 #' @export
 all_subset_plot <- function(
@@ -131,6 +126,13 @@ all_subset_plot <- function(
     ) +
     ggplot2::scale_color_viridis_c(
       name = "Number of Predictors",
+      # ---------------------------------------------------------
+      # FIX: Filter standard extended breaks to keep only integers
+      # ---------------------------------------------------------
+      breaks = function(x) {
+        b <- scales::breaks_extended()(x)
+        b[b %% 1 == 0]
+      },
       option = "D",
       guide = ggplot2::guide_colorbar(
         title.position = "top",

@@ -10,3 +10,4 @@
 ^vignettes/.*_files$
 ^vignettes/\.quarto$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$

@@ -19,20 +19,10 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' result <- nb_varsel(
-#'   data = df, outcome_var = "Y", costs = harms,
-#'   mode = "exhaustive", permutation = TRUE,
-#'   splines = FALSE, allow_parallel = FALSE
-#' )
-#' vif_results <- VIF_plot(result$all_models)
-#' 
-#' # View the plot
-#' print(vif_results$plot)
-#' 
-#' # View the values
-#' print(vif_results$data)
-#' }
+#' data(adnex_results)
+#' vif_results <- VIF_plot(adnex_results)
+#' vif_results$plot
+#' head(vif_results$data)
 #' @export
 VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB") {
   if (!is.null(filter)) {
