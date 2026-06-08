@@ -13,7 +13,8 @@ all_subset_plot(
   highlight_color = "red",
   tile_color = "#2A6EBB",
   p1_theme = NULL,
-  p2_theme = NULL
+  p2_theme = NULL,
+  data_dict = NULL
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ the heatmap panel. Defaults to \code{"#2A6EBB"}.}
 
 \item{p2_theme}{A \code{\link[ggplot2:theme]{ggplot2::theme()}} object to add to the bottom panel,
 or \code{NULL}.}
+
+\item{data_dict}{A named character vector for renaming predictors.
+Format: c("raw_name" = "Display Label"). Defaults to \code{NULL}.}
 }
 \value{
 A \link[patchwork:patchwork]{patchwork} object (two stacked ggplot panels).
@@ -51,9 +55,4 @@ Creates a two-panel figure: the top panel shows a performance metric
 across all evaluated models (ordered by number of predictors then by
 metric value), and the bottom panel shows a heatmap of which predictors
 are included in each model.
-}
-\examples{
-data(adnex_results)
-all_subset_plot(adnex_results)
-
 }

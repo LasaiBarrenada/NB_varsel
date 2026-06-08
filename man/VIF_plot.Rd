@@ -4,7 +4,7 @@
 \alias{VIF_plot}
 \title{Permutation Importance Bar Plot}
 \usage{
-VIF_plot(all_models, filter = NULL, color = "#2A6EBB")
+VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
 }
 \arguments{
 \item{all_models}{Data frame returned in the \code{all_models} element of
@@ -17,12 +17,15 @@ Defaults to \code{NULL} (use all models).}
 
 \item{color}{Character string. Fill color for the bars. Defaults to
 \code{"#2A6EBB"}.}
+
+\item{data_dict}{A named character vector for renaming predictors.
+Format: c("raw_name" = "Display Label"). Defaults to \code{NULL}.}
 }
 \value{
 A list containing two elements:
 \describe{
 \item{plot}{A \link[ggplot2:ggplot]{ggplot2::ggplot} object of the bar chart.}
-\item{data}{A data frame containing the \code{Variable} and \code{Average_Delta_NB} values.}
+\item{data}{A data frame containing the \code{Variable}, \code{Average_Delta_NB}, and mapped \code{Label} values.}
 }
 }
 \description{
