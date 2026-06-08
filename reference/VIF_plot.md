@@ -50,11 +50,11 @@ vif_results <- VIF_plot(adnex_results)
 vif_results$plot
 
 head(vif_results$data)
-#>           Variable Average_Delta_NB
-#> 1       prop_solid      0.050336541
-#> 2   max_diam_solid      0.029713935
-#> 3  max_diam_lesion      0.009729310
-#> 4      color_score      0.009400117
-#> 5 acoustic_shadows      0.004271808
-#> 6            ca125      0.004059608
+#>           Variable Average_Delta_NB            Label
+#> 1       prop_solid      0.050336541       prop_solid
+#> 2   max_diam_solid      0.029713935   max_diam_solid
+#> 3  max_diam_lesion      0.009729310  max_diam_lesion
+#> 4      color_score      0.009400117      color_score
+#> 5 acoustic_shadows      0.004271808 acoustic_shadows
+#> 6            ca125      0.004059608            ca125
 ```
