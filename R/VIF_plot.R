@@ -11,11 +11,13 @@
 #'   Defaults to `NULL` (use all models).
 #' @param color Character string. Fill color for the bars. Defaults to
 #'   `"#2A6EBB"`.
+#' @param data_dict A named character vector for renaming predictors. 
+#'   Format: c("raw_name" = "Display Label"). Defaults to `NULL`.
 #'
 #' @return A list containing two elements:
 #' \describe{
 #'   \item{plot}{A [ggplot2::ggplot] object of the bar chart.}
-#'   \item{data}{A data frame containing the `Variable` and `Average_Delta_NB` values.}
+#'   \item{data}{A data frame containing the `Variable`, `Average_Delta_NB`, and mapped `Label` values.}
 #' }
 #'
 #' @examples
@@ -24,7 +26,7 @@
 #' vif_results$plot
 #' head(vif_results$data)
 #' @export
-VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB") {
+VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL) {
   if (!is.null(filter)) {
     all_models <- all_models |>
       dplyr::slice_max(order_by = .data$Avg_Net_Benefit, n = filter) |>
@@ -43,10 +45,19 @@ VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB") {
     Average_Delta_NB = unname(vif_means)
   )
 
+  # --- Apply Data Dictionary Mapping ---
+  if (!is.null(data_dict)) {
+    # Match variables to dictionary. Fall back to raw name if no match is found.
+    mapped_labels <- data_dict[plot_df$Variable]
+    plot_df$Label <- ifelse(is.na(mapped_labels), as.character(plot_df$Variable), mapped_labels)
+  } else {
+    plot_df$Label <- plot_df$Variable
+  }
+
   p <- ggplot2::ggplot(
     plot_df,
     ggplot2::aes(
-      x = stats::reorder(.data$Variable, -.data$Average_Delta_NB),
+      x = stats::reorder(.data$Label, -.data$Average_Delta_NB),
       y = .data$Average_Delta_NB
     )
   ) +
