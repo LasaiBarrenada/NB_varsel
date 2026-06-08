@@ -17,7 +17,8 @@ all_subset_plot(
   highlight_color = "red",
   tile_color = "#2A6EBB",
   p1_theme = NULL,
-  p2_theme = NULL
+  p2_theme = NULL,
+  data_dict = NULL
 )
 ```
 
@@ -69,17 +70,13 @@ all_subset_plot(
   [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html)
   object to add to the bottom panel, or `NULL`.
 
+- data_dict:
+
+  A named character vector for renaming predictors. Format: c("raw_name"
+  = "Display Label"). Defaults to `NULL`.
+
 ## Value
 
 A
 [patchwork](https://patchwork.data-imaginist.com/reference/patchwork-package.html)
 object (two stacked ggplot panels).
-
-## Examples
-
-``` r
-data(adnex_results)
-all_subset_plot(adnex_results)
-#> Filtered to best 5 per number of predictors.
-
-```

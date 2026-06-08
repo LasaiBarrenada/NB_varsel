@@ -60,7 +60,8 @@ are included in each model.</p>
 <span>  highlight_color <span class="op">=</span> <span class="st">"red"</span>,</span>
 <span>  tile_color <span class="op">=</span> <span class="st">"#2A6EBB"</span>,</span>
 <span>  p1_theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  p2_theme <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  p2_theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  data_dict <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,21 +112,17 @@ the heatmap panel. Defaults to <code>"#2A6EBB"</code>.</p></dd>
 <dd><p>A <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code> object to add to the bottom panel,
 or <code>NULL</code>.</p></dd>
 
+
+<dt id="arg-data-dict">data_dict<a class="anchor" aria-label="anchor" href="#arg-data-dict"></a></dt>
+<dd><p>A named character vector for renaming predictors.
+Format: c("raw_name" = "Display Label"). Defaults to <code>NULL</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <a href="https://patchwork.data-imaginist.com/reference/patchwork-package.html" class="external-link">patchwork</a> object (two stacked ggplot panels).</p>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">adnex_results</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">all_subset_plot</span><span class="op">(</span><span class="va">adnex_results</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Filtered to best 5 per number of predictors.</span>
-<span class="r-plt img"><img src="all_subset_plot-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

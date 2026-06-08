@@ -7,7 +7,7 @@ models.
 ## Usage
 
 ``` r
-VIF_plot(all_models, filter = NULL, color = "#2A6EBB")
+VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
 ```
 
 ## Arguments
@@ -28,6 +28,11 @@ VIF_plot(all_models, filter = NULL, color = "#2A6EBB")
 
   Character string. Fill color for the bars. Defaults to `"#2A6EBB"`.
 
+- data_dict:
+
+  A named character vector for renaming predictors. Format: c("raw_name"
+  = "Display Label"). Defaults to `NULL`.
+
 ## Value
 
 A list containing two elements:
@@ -40,7 +45,8 @@ A list containing two elements:
 
 - data:
 
-  A data frame containing the `Variable` and `Average_Delta_NB` values.
+  A data frame containing the `Variable`, `Average_Delta_NB`, and mapped
+  `Label` values.
 
 ## Examples
 
