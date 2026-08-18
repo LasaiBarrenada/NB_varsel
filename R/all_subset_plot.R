@@ -22,17 +22,10 @@
 #'   `NULL`.
 #' @param p2_theme A [ggplot2::theme()] object to add to the bottom panel,
 #'   or `NULL`.
+#' @param data_dict A named character vector for renaming predictors. 
+#'   Format: c("raw_name" = "Display Label"). Defaults to `NULL`.
 #'
 #' @return A [patchwork] object (two stacked ggplot panels).
-#'
-#' @examples
-#' \dontrun{
-#' result <- nb_varsel(
-#'   data = df, outcome_var = "Y", costs = harms,
-#'   mode = "exhaustive", splines = FALSE, allow_parallel = FALSE
-#' )
-#' all_subset_plot(result$all_models)
-#' }
 #'
 #' @export
 all_subset_plot <- function(
@@ -44,7 +37,8 @@ all_subset_plot <- function(
     highlight_color = "red",
     tile_color = "#2A6EBB",
     p1_theme = NULL,
-    p2_theme = NULL
+    p2_theme = NULL,
+    data_dict = NULL
 ) {
   # --- 1. Data Preparation ---
   all_vars <- all_models$Model |>
@@ -95,6 +89,17 @@ all_subset_plot <- function(
     unlist() |>
     stringr::str_trim()
 
+  # --- 4.5 Apply Data Dictionary Mapping (NEW) ---
+  if (!is.null(data_dict)) {
+    # Map the long dataframe for the y-axis labels
+    mapped_long <- data_dict[df_long$predictor]
+    df_long$predictor <- ifelse(is.na(mapped_long), df_long$predictor, mapped_long)
+    
+    # Map the best model predictors so the bolding logic catches them
+    mapped_best <- data_dict[best_model_preds]
+    best_model_preds <- ifelse(is.na(mapped_best), best_model_preds, mapped_best)
+  }
+
   # --- 5. Prepare Bolding Logic ---
   sorted_preds <- sort(unique(df_long$predictor))
   df_long$predictor <- factor(df_long$predictor, levels = sorted_preds)
@@ -131,6 +136,10 @@ all_subset_plot <- function(
     ) +
     ggplot2::scale_color_viridis_c(
       name = "Number of Predictors",
+      breaks = function(x) {
+        b <- scales::breaks_extended()(x)
+        b[b %% 1 == 0]
+      },
       option = "D",
       guide = ggplot2::guide_colorbar(
         title.position = "top",

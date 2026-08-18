@@ -8,3 +8,6 @@
 ^_pkgdown\.yml$
 ^vignettes/.*_cache$
 ^vignettes/.*_files$
+^vignettes/\.quarto$
+^cran-comments\.md$
+^CRAN-SUBMISSION$

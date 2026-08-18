@@ -26,7 +26,7 @@ predictor. \code{NA} when the predictor is not included in the model.}
 }
 \source{
 IOTA consortium data (phases 1--3). See
-\url{https://www.iotagroup.org/} for information about the IOTA studies.
+\url{https://iotaplus.org/en} for information about the IOTA studies.
 }
 \usage{
 adnex_results

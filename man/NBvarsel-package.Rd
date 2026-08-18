@@ -6,7 +6,7 @@
 \alias{NBvarsel-package}
 \title{NBvarsel: Variable Selection via Cross-Validated Net Benefit}
 \description{
-Performs exhaustive or groupwise (backward elimination) variable selection for binary outcome prediction models using cross-validated Net Benefit as the optimization criterion. Supports predictor costs, restricted cubic splines, interaction terms, permutation importance, and parallel computation. Includes visualizations for model comparison and variable importance.
+Performs exhaustive or groupwise (backward elimination) variable selection for binary outcome prediction models using cross-validated Net Benefit as the optimization criterion. It supports predictor costs, restricted cubic splines, interaction terms, permutation importance, and parallel computation. It includes visualizations for model comparison and variable importance. References include Vickers AJ & Elkin EB (2006) \doi{10.1177/0272989X06295361}, Van Calster B et al. (2018) \doi{10.1016/j.eururo.2018.08.038}, Vickers AJ et al. (2019) \doi{10.1186/s41512-019-0064-7}, and Baker SG et al. (2012) \doi{10.1515/1557-4679.1395}.
 }
 \seealso{
 Useful links:
@@ -18,7 +18,17 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Lasai Barreñada \email{lasai.barrenadataleb@kuleuven.be} (\href{https://orcid.org/0000-0001-8020-0210}{ORCID})
+\strong{Maintainer}: Lasai Barreñada \email{lasai.barrenadataleb@kuleuven.be} (\href{https://orcid.org/0000-0001-8020-0210}{ORCID}) (Department of Development and Regeneration ; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium)
+
+Authors:
+\itemize{
+  \item Lasai Barreñada \email{lasai.barrenadataleb@kuleuven.be} (\href{https://orcid.org/0000-0001-8020-0210}{ORCID}) (Department of Development and Regeneration ; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium)
+  \item Laure Wynants (\href{https://orcid.org/0000-0002-3037-122X}{ORCID}) (Department of Development and Regeneration, KU Leuven, Belgium; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium; Department of Epidemiology, CAPHRI Care and Public Health Research Institute, Maastricht University, Maastricht, Netherlands)
+  \item Ewout W. Steyerberg (\href{https://orcid.org/0000-0002-7787-0122}{ORCID}) (Julius Centre for Health Sciences and Primary Care, University Medical Centre Utrecht, Utrecht, Netherlands)
+  \item Dirk Timmerman (\href{https://orcid.org/0000-0002-3707-6645}{ORCID}) (Department of Development and Regeneration, KU Leuven, Belgium)
+  \item Andrew Vickers (\href{https://orcid.org/0000-0003-1525-6503}{ORCID}) (Department of Epidemiology and Biostatistics, Memorial Sloan Kettering Cancer Center, New York, NY, USA)
+  \item Ben Van Calster (\href{https://orcid.org/0000-0003-1613-7450}{ORCID}) (Department of Development and Regeneration, KU Leuven, Belgium; Leuven Unit for Health Technology Assessment Research (LUHTAR), KU Leuven, Belgium; Julius Centre for Health Sciences and Primary Care, University Medical Centre Utrecht, Utrecht, Netherlands)
+}
 
 }
 \keyword{internal}

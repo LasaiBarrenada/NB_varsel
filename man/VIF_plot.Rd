@@ -4,7 +4,7 @@
 \alias{VIF_plot}
 \title{Permutation Importance Bar Plot}
 \usage{
-VIF_plot(all_models, filter = NULL, color = "#2A6EBB")
+VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
 }
 \arguments{
 \item{all_models}{Data frame returned in the \code{all_models} element of
@@ -17,12 +17,15 @@ Defaults to \code{NULL} (use all models).}
 
 \item{color}{Character string. Fill color for the bars. Defaults to
 \code{"#2A6EBB"}.}
+
+\item{data_dict}{A named character vector for renaming predictors.
+Format: c("raw_name" = "Display Label"). Defaults to \code{NULL}.}
 }
 \value{
 A list containing two elements:
 \describe{
 \item{plot}{A \link[ggplot2:ggplot]{ggplot2::ggplot} object of the bar chart.}
-\item{data}{A data frame containing the \code{Variable} and \code{Average_Delta_NB} values.}
+\item{data}{A data frame containing the \code{Variable}, \code{Average_Delta_NB}, and mapped \code{Label} values.}
 }
 }
 \description{
@@ -30,19 +33,8 @@ Creates a horizontal bar chart showing the average permutation importance
 (delta Net Benefit) for each predictor across the evaluated models.
 }
 \examples{
-\dontrun{
-result <- nb_varsel(
-  data = df, outcome_var = "Y", costs = harms,
-  mode = "exhaustive", permutation = TRUE,
-  splines = FALSE, allow_parallel = FALSE
-)
-vif_results <- VIF_plot(result$all_models)
-
-# View the plot
-print(vif_results$plot)
-
-# View the values
-print(vif_results$data)
-}
-
+data(adnex_results)
+vif_results <- VIF_plot(adnex_results)
+vif_results$plot
+head(vif_results$data)
 }

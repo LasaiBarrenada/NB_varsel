@@ -53,7 +53,7 @@
 #' \code{"n_total_models"} records the total number of evaluated models.
 #'
 #' @source IOTA consortium data (phases 1--3). See
-#'   \url{https://www.iotagroup.org/} for information about the IOTA studies.
+#'   \url{https://iotaplus.org/en} for information about the IOTA studies.
 #'
 #' @examples
 #' data(adnex_results)

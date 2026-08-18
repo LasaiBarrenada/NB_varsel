@@ -66,7 +66,7 @@ to \code{TRUE}.}
 each predictor. Defaults to \code{FALSE}.}
 
 \item{splines}{Logical. Apply restricted cubic splines (via
-\code{\link[rms:rms.trans]{rms::rcs()}}) to continuous predictors. Defaults to \code{TRUE}.}
+\code{\link[rms:rcs]{rms::rcs()}}) to continuous predictors. Defaults to \code{TRUE}.}
 
 \item{n_knots}{Integer. Number of knots for restricted cubic splines.
 Defaults to 3.}
@@ -88,7 +88,6 @@ for binary outcome prediction models. Models are evaluated using
 cross-validated Net Benefit, optionally adjusted for predictor costs.
 }
 \examples{
-\dontrun{
 set.seed(42)
 n <- 500
 df <- data.frame(
@@ -105,6 +104,5 @@ result <- nb_varsel(
   allow_parallel = FALSE
 )
 result$best_model_stats
-}
 
 }
