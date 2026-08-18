@@ -1,7 +1,7 @@
 Package: NBvarsel
 Title: Variable Selection via Cross-Validated Net Benefit
-Version: 0.1.0
-Authors@R: c(
+Version: 0.2.0
+Authors@R: 
     person("Lasai", "Barreñada", , "lasai.barrenadataleb@kuleuven.be",
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-8020-0210",
