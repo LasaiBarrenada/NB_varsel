@@ -1,8 +1,8 @@
 # Permutation Importance Bar Plot
 
 Creates a horizontal bar chart showing the average permutation
-importance (delta Net Benefit) for each predictor across the evaluated
-models.
+importance of each predictor, measured as the change in net benefit
+relative to the full set of evaluated models.
 
 ## Usage
 
@@ -16,13 +16,13 @@ VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
 
   Data frame returned in the `all_models` element of
   [`nb_varsel()`](https://lasaibarrenada.github.io/NB_varsel/reference/nb_varsel.md).
-  Must include `VIF_*` columns (generated when `permutation = TRUE`).
+  Must include `VIF_` columns generated when `permutation = TRUE`.
 
 - filter:
 
-  Integer or `NULL`. If specified, only the top `filter` models (by
-  `Avg_Net_Benefit`) are used to compute average importance. Defaults to
-  `NULL` (use all models).
+  Integer or `NULL`. If specified, only the top `filter` models by
+  `Avg_Net_Benefit` are used to compute average importance. Defaults to
+  `NULL`, which uses all models.
 
 - color:
 
@@ -30,18 +30,18 @@ VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
 
 - data_dict:
 
-  A named character vector for renaming predictors. Format: c("raw_name"
-  = "Display Label"). Defaults to `NULL`.
+  A named character vector used to relabel predictors. Format:
+  `c("raw_name" = "Display Label")`. Defaults to `NULL`.
 
 ## Value
 
-A list containing two elements:
+A list with two elements:
 
 - plot:
 
   A
   [ggplot2::ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html)
-  object of the bar chart.
+  object showing the bar chart.
 
 - data:
 

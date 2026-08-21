@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">NBvarsel</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,14 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.1" id="nbvarsel-011">NBvarsel 0.1.1<a class="anchor" aria-label="anchor" href="#nbvarsel-011"></a></h2>
+<ul><li>Improved package documentation and roxygen comments for the main selection function and plotting helpers, making the exported API clearer and easier to use.</li>
+<li>Refined the documentation for <code><a href="../reference/all_subset_plot.html">all_subset_plot()</a></code> and <code><a href="../reference/VIF_plot.html">VIF_plot()</a></code> to better describe their inputs, outputs, and examples.</li>
+<li>Extended plotting utilities with optional predictor relabelling via <code>data_dict</code>, making it easier to present clinically meaningful variable names in figures.</li>
+<li>Improved the tutorial vignette layout and narrative around the fabricated clinical example and case-study sections, with clearer descriptions of model comparisons and interpretation.</li>
+<li>Cleaned up the vignette workflow to avoid brittle global-environment cleanup during execution.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="nbvarsel-010">NBvarsel 0.1.0<a class="anchor" aria-label="anchor" href="#nbvarsel-010"></a></h2>
 <ul><li>Initial release.</li>
 <li>Added <code>adnex_results</code> dataset: pre-computed exhaustive variable selection results from the IOTA/ADNEX ovarian tumour case study (top 20 models per predictor count from a 65,535-model search). Original patient data are not disclosed.</li>
@@ -47,15 +55,16 @@
 <li>
 <code><a href="../reference/VIF_plot.html">VIF_plot()</a></code> creates a horizontal bar chart of average permutation importance (delta Net Benefit) per predictor. Supports a customisable <code>color</code> argument.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://lasaibarrenada.github.io/" class="external-link">Lasai Barreñada</a>, Laure Wynants, Ewout W. Steyerberg, Dirk Timmerman, Andrew Vickers, Ben Van Calster.</p>
+  <p>Developed by <a href="https://lasaibarrenada.github.io/" class="external-link">Lasai Barreñada</a>, Laure Wynants, Ewout W. Steyerberg, Andrew Vickers, Ben Van Calster.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

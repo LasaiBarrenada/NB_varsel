@@ -18,10 +18,6 @@
   Julius Centre for Health Sciences and Primary Care, University Medical
   Centre Utrecht, Utrecht, Netherlands
 
-- **Dirk Timmerman**. Author.
-  [](https://orcid.org/0000-0002-3707-6645)  
-  Department of Development and Regeneration, KU Leuven, Belgium
-
 - **Andrew Vickers**. Author.
   [](https://orcid.org/0000-0003-1525-6503)  
   Department of Epidemiology and Biostatistics, Memorial Sloan Kettering
@@ -39,15 +35,14 @@
 Source:
 [`DESCRIPTION`](https://github.com/LasaiBarrenada/NB_varsel/blob/main/DESCRIPTION)
 
-Barreñada L, Wynants L, Steyerberg E, Timmerman D, Vickers A, Van
-Calster B (2026). *NBvarsel: Variable Selection via Cross-Validated Net
-Benefit*. R package version 0.1.0,
-<https://lasaibarrenada.github.io/NB_varsel/>.
+Barreñada L, Wynants L, Steyerberg E, Vickers A, Van Calster B (2026).
+*NBvarsel: Variable Selection via Cross-Validated Net Benefit*. R
+package version 0.1.1, <https://lasaibarrenada.github.io/NB_varsel/>.
 
     @Manual{,
       title = {NBvarsel: Variable Selection via Cross-Validated Net Benefit},
-      author = {Lasai Barreñada and Laure Wynants and Ewout W. Steyerberg and Dirk Timmerman and Andrew Vickers and Ben {Van Calster}},
+      author = {Lasai Barreñada and Laure Wynants and Ewout W. Steyerberg and Andrew Vickers and Ben {Van Calster}},
       year = {2026},
-      note = {R package version 0.1.0},
+      note = {R package version 0.1.1},
       url = {https://lasaibarrenada.github.io/NB_varsel/},
     }

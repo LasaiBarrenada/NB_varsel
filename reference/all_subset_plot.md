@@ -1,9 +1,9 @@
 # All-Subset Model Comparison Plot
 
-Creates a two-panel figure: the top panel shows a performance metric
-across all evaluated models (ordered by number of predictors then by
-metric value), and the bottom panel shows a heatmap of which predictors
-are included in each model.
+Creates a two-panel figure comparing model performance across all
+evaluated subsets. The upper panel shows the selected metric for each
+model, and the lower panel shows which predictors are included in each
+model.
 
 ## Usage
 
@@ -28,55 +28,56 @@ all_subset_plot(
 
   Data frame returned in the `all_models` element of
   [`nb_varsel()`](https://lasaibarrenada.github.io/NB_varsel/reference/nb_varsel.md).
+  This should contain the model summary output used for plotting.
 
 - metric:
 
-  Character string. Column name in `all_models` to plot on the y-axis.
-  Defaults to `"Avg_Net_Benefit"`.
+  Character string. Name of the column in `all_models` to plot on the
+  y-axis. Defaults to `"Avg_Net_Benefit"`.
 
 - y_axis:
 
-  Character string. Label for the y-axis of the top panel. Defaults to
+  Character string. Label for the y-axis in the top panel. Defaults to
   `"Average Net Benefit"`.
 
 - filter:
 
-  Integer. When there are more than 100 models, keep only the top
-  `filter` models per number of predictors. Defaults to 5.
+  Integer. Maximum number of models to display per number of predictors.
+  Defaults to 5.
 
 - size_dot:
 
-  Numeric. Point size in the metric plot. Defaults to 3.
+  Numeric. Point size used in the metric plot. Defaults to 3.
 
 - highlight_color:
 
-  Character string. Color for the dashed lines marking the best model.
-  Defaults to `"red"`.
+  Character string. Color for the dashed reference lines marking the
+  best model. Defaults to `"red"`.
 
 - tile_color:
 
-  Character string. Fill color for "present" tiles in the heatmap panel.
-  Defaults to `"#2A6EBB"`.
+  Character string. Fill color used for included predictors in the
+  heatmap. Defaults to `"#2A6EBB"`.
 
 - p1_theme:
 
   A
   [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html)
-  object to add to the top panel, or `NULL`.
+  object applied to the top panel, or `NULL`.
 
 - p2_theme:
 
   A
   [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html)
-  object to add to the bottom panel, or `NULL`.
+  object applied to the bottom panel, or `NULL`.
 
 - data_dict:
 
-  A named character vector for renaming predictors. Format: c("raw_name"
-  = "Display Label"). Defaults to `NULL`.
+  A named character vector used to relabel predictors. Format:
+  `c("raw_name" = "Display Label")`. Defaults to `NULL`.
 
 ## Value
 
 A
 [patchwork](https://patchwork.data-imaginist.com/reference/patchwork-package.html)
-object (two stacked ggplot panels).
+object containing two stacked ggplot panels.

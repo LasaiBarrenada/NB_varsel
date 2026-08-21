@@ -1,9 +1,8 @@
 # Variable Selection via Cross-Validated Net Benefit
 
-Performs exhaustive or groupwise (backward elimination) variable
-selection for binary outcome prediction models. Models are evaluated
-using cross-validated Net Benefit, optionally adjusted for predictor
-costs.
+Performs exhaustive or groupwise variable selection for binary-outcome
+prediction models. Models are evaluated using cross-validated net
+benefit, with optional adjustment for predictor costs.
 
 ## Usage
 
@@ -30,12 +29,13 @@ nb_varsel(
 
 - data:
 
-  A data frame containing predictors and the outcome variable.
+  A data frame containing the predictor variables and the binary
+  outcome.
 
 - outcome_var:
 
-  Character string naming the binary outcome column (coded 0/1 or as a
-  two-level factor).
+  Character string naming the binary outcome column (coded as 0/1 or as
+  a two-level factor).
 
 - costs:
 
@@ -43,36 +43,36 @@ nb_varsel(
 
   - `NULL` (default): no costs.
 
-  - A named numeric vector: per-predictor costs (e.g.,
-    `c(X1 = 0.1, X2 = 0.05)`).
+  - A named numeric vector: per-predictor costs, e.g.
+    `c(X1 = 0.1, X2 = 0.05)`.
 
-  - An unnamed scalar: same cost applied to every predictor.
+  - An unnamed scalar: the same cost applied to every predictor.
 
   - A list of groups, each with elements `vars` (character vector) and
-    `cost` (numeric). The group cost is added once if *any* of its
-    variables are included.
+    `cost` (numeric). The group cost is added once if any variable in
+    the group is selected.
 
 - thresholds:
 
-  Numeric vector of decision thresholds at which to compute Net Benefit.
-  Defaults to `seq(0.05, 0.3, by = 0.01)`.
+  Numeric vector of decision thresholds at which net benefit is
+  evaluated. Defaults to `seq(0.05, 0.3, by = 0.01)`.
 
 - include_interactions:
 
-  Logical. If `TRUE`, models with interaction terms
-  (`(X1 + X2 + ...)^2`) are also evaluated (exhaustive mode only).
-  Defaults to `FALSE`.
+  Logical. If `TRUE`, interaction terms (`(X1 + X2 + ...)^2`) are also
+  evaluated in exhaustive mode. Defaults to `FALSE`.
 
 - mode:
 
-  Either `"exhaustive"` (evaluate all predictor combinations) or
-  `"groupwise"` (backward elimination removing `group_size` variables at
-  a time). Defaults to `"exhaustive"`.
+  Character string specifying the selection strategy: `"exhaustive"`
+  evaluates all predictor subsets, while `"groupwise"` performs backward
+  elimination in groups of size `group_size`. Defaults to
+  `"exhaustive"`.
 
 - group_size:
 
-  Integer. Number of variables to consider removing in each step of
-  groupwise mode. Defaults to 2.
+  Integer. Number of variables removed at each step in groupwise mode.
+  Defaults to 2.
 
 - cv_folds:
 
@@ -84,34 +84,32 @@ nb_varsel(
 
 - verbose:
 
-  Logical. Print progress messages. Defaults to `TRUE`.
+  Logical. If `TRUE`, progress messages are printed. Defaults to `TRUE`.
 
 - allow_parallel:
 
-  Logical. Use parallel computing via
-  [`foreach::foreach()`](https://rdrr.io/pkg/foreach/man/foreach.html)
-  and
-  [`doParallel::registerDoParallel()`](https://rdrr.io/pkg/doParallel/man/registerDoParallel.html).
-  Defaults to `TRUE`.
+  Logical. If `TRUE`, use parallel computation through `foreach` and
+  `doParallel`. Defaults to `TRUE`.
 
 - permutation:
 
-  Logical. Compute permutation importance scores for each predictor.
-  Defaults to `FALSE`.
+  Logical. If `TRUE`, compute permutation importance scores for each
+  predictor. Defaults to `FALSE`.
 
 - splines:
 
-  Logical. Apply restricted cubic splines (via
+  Logical. If `TRUE`, apply restricted cubic splines (via
   [`rms::rcs()`](https://rdrr.io/pkg/rms/man/rms.trans.html)) to
   continuous predictors. Defaults to `TRUE`.
 
 - n_knots:
 
-  Integer. Number of knots for restricted cubic splines. Defaults to 3.
+  Integer. Number of knots used for restricted cubic splines. Defaults
+  to 3.
 
 ## Value
 
-A list with two elements:
+A list with the following elements:
 
 - best_model_stats:
 
@@ -121,8 +119,9 @@ A list with two elements:
 
   A data frame with one row per evaluated model, containing columns
   `Model`, `n_Preds`, `AUC`, `Brier`, `Total_Cost`,
-  `Avg_Adj_Net_Benefit`, `Avg_Net_Benefit`, and (if
-  `permutation = TRUE`) `VIF_*` columns for each predictor.
+  `Avg_Adj_Net_Benefit`, and `Avg_Net_Benefit`. If `permutation = TRUE`,
+  additional `VIF_` columns containing permutation importance scores are
+  included.
 
 ## Examples
 

@@ -49,9 +49,6 @@ Authors:
   (Julius Centre for Health Sciences and Primary Care, University
   Medical Centre Utrecht, Utrecht, Netherlands)
 
-- Dirk Timmerman ([ORCID](https://orcid.org/0000-0002-3707-6645))
-  (Department of Development and Regeneration, KU Leuven, Belgium)
-
 - Andrew Vickers ([ORCID](https://orcid.org/0000-0003-1525-6503))
   (Department of Epidemiology and Biostatistics, Memorial Sloan
   Kettering Cancer Center, New York, NY, USA)
