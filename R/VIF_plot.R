@@ -1,23 +1,25 @@
 #' Permutation Importance Bar Plot
 #'
-#' Creates a horizontal bar chart showing the average permutation importance
-#' (delta Net Benefit) for each predictor across the evaluated models.
+#' Creates a horizontal bar chart showing the average permutation
+#' importance of each predictor, measured as the change in net benefit
+#' relative to the full set of evaluated models.
 #'
 #' @param all_models Data frame returned in the `all_models` element of
-#'   [nb_varsel()]. Must include `VIF_*` columns
-#'   (generated when `permutation = TRUE`).
+#'   [nb_varsel()]. Must include `VIF_` columns generated when
+#'   `permutation = TRUE`.
 #' @param filter Integer or `NULL`. If specified, only the top `filter`
-#'   models (by `Avg_Net_Benefit`) are used to compute average importance.
-#'   Defaults to `NULL` (use all models).
+#'   models by `Avg_Net_Benefit` are used to compute average importance.
+#'   Defaults to `NULL`, which uses all models.
 #' @param color Character string. Fill color for the bars. Defaults to
 #'   `"#2A6EBB"`.
-#' @param data_dict A named character vector for renaming predictors. 
-#'   Format: c("raw_name" = "Display Label"). Defaults to `NULL`.
+#' @param data_dict A named character vector used to relabel predictors.
+#'   Format: `c("raw_name" = "Display Label")`. Defaults to `NULL`.
 #'
-#' @return A list containing two elements:
+#' @return A list with two elements:
 #' \describe{
-#'   \item{plot}{A [ggplot2::ggplot] object of the bar chart.}
-#'   \item{data}{A data frame containing the `Variable`, `Average_Delta_NB`, and mapped `Label` values.}
+#'   \item{plot}{A [ggplot2::ggplot] object showing the bar chart.}
+#'   \item{data}{A data frame containing the `Variable`,
+#'     `Average_Delta_NB`, and mapped `Label` values.}
 #' }
 #'
 #' @examples
@@ -25,6 +27,7 @@
 #' vif_results <- VIF_plot(adnex_results)
 #' vif_results$plot
 #' head(vif_results$data)
+#'
 #' @export
 VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL) {
   if (!is.null(filter)) {

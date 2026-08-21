@@ -8,33 +8,36 @@ VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
 }
 \arguments{
 \item{all_models}{Data frame returned in the \code{all_models} element of
-\code{\link[=nb_varsel]{nb_varsel()}}. Must include \verb{VIF_*} columns
-(generated when \code{permutation = TRUE}).}
+\code{\link[=nb_varsel]{nb_varsel()}}. Must include \code{VIF_} columns generated when
+\code{permutation = TRUE}.}
 
 \item{filter}{Integer or \code{NULL}. If specified, only the top \code{filter}
-models (by \code{Avg_Net_Benefit}) are used to compute average importance.
-Defaults to \code{NULL} (use all models).}
+models by \code{Avg_Net_Benefit} are used to compute average importance.
+Defaults to \code{NULL}, which uses all models.}
 
 \item{color}{Character string. Fill color for the bars. Defaults to
 \code{"#2A6EBB"}.}
 
-\item{data_dict}{A named character vector for renaming predictors.
-Format: c("raw_name" = "Display Label"). Defaults to \code{NULL}.}
+\item{data_dict}{A named character vector used to relabel predictors.
+Format: \code{c("raw_name" = "Display Label")}. Defaults to \code{NULL}.}
 }
 \value{
-A list containing two elements:
+A list with two elements:
 \describe{
-\item{plot}{A \link[ggplot2:ggplot]{ggplot2::ggplot} object of the bar chart.}
-\item{data}{A data frame containing the \code{Variable}, \code{Average_Delta_NB}, and mapped \code{Label} values.}
+\item{plot}{A \link[ggplot2:ggplot]{ggplot2::ggplot} object showing the bar chart.}
+\item{data}{A data frame containing the \code{Variable},
+\code{Average_Delta_NB}, and mapped \code{Label} values.}
 }
 }
 \description{
-Creates a horizontal bar chart showing the average permutation importance
-(delta Net Benefit) for each predictor across the evaluated models.
+Creates a horizontal bar chart showing the average permutation
+importance of each predictor, measured as the change in net benefit
+relative to the full set of evaluated models.
 }
 \examples{
 data(adnex_results)
 vif_results <- VIF_plot(adnex_results)
 vif_results$plot
 head(vif_results$data)
+
 }

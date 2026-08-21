@@ -1,51 +1,54 @@
 #' Variable Selection via Cross-Validated Net Benefit
 #'
-#' Performs exhaustive or groupwise (backward elimination) variable selection
-#' for binary outcome prediction models. Models are evaluated using
-#' cross-validated Net Benefit, optionally adjusted for predictor costs.
+#' Performs exhaustive or groupwise variable selection for binary-outcome
+#' prediction models. Models are evaluated using cross-validated net benefit,
+#' with optional adjustment for predictor costs.
 #'
-#' @param data A data frame containing predictors and the outcome variable.
+#' @param data A data frame containing the predictor variables and the
+#'   binary outcome.
 #' @param outcome_var Character string naming the binary outcome column
-#'   (coded 0/1 or as a two-level factor).
+#'   (coded as 0/1 or as a two-level factor).
 #' @param costs Predictor costs. Can be:
 #'   - `NULL` (default): no costs.
-#'   - A named numeric vector: per-predictor costs (e.g.,
-#'     `c(X1 = 0.1, X2 = 0.05)`).
-#'   - An unnamed scalar: same cost applied to every predictor.
+#'   - A named numeric vector: per-predictor costs, e.g.
+#'     `c(X1 = 0.1, X2 = 0.05)`.
+#'   - An unnamed scalar: the same cost applied to every predictor.
 #'   - A list of groups, each with elements `vars` (character vector) and
-#'     `cost` (numeric). The group cost is added once if *any* of its
-#'     variables are included.
-#' @param thresholds Numeric vector of decision thresholds at which to
-#'   compute Net Benefit. Defaults to `seq(0.05, 0.3, by = 0.01)`.
-#' @param include_interactions Logical. If `TRUE`, models with interaction
-#'   terms (`(X1 + X2 + ...)^2`) are also evaluated (exhaustive mode only).
+#'     `cost` (numeric). The group cost is added once if any variable in
+#'     the group is selected.
+#' @param thresholds Numeric vector of decision thresholds at which net
+#'   benefit is evaluated. Defaults to `seq(0.05, 0.3, by = 0.01)`.
+#' @param include_interactions Logical. If `TRUE`, interaction terms
+#'   (`(X1 + X2 + ...)^2`) are also evaluated in exhaustive mode.
 #'   Defaults to `FALSE`.
-#' @param mode Either `"exhaustive"` (evaluate all predictor combinations)
-#'   or `"groupwise"` (backward elimination removing `group_size` variables
-#'   at a time). Defaults to `"exhaustive"`.
-#' @param group_size Integer. Number of variables to consider removing in
-#'   each step of groupwise mode. Defaults to 2.
+#' @param mode Character string specifying the selection strategy:
+#'   `"exhaustive"` evaluates all predictor subsets, while `"groupwise"`
+#'   performs backward elimination in groups of size `group_size`.
+#'   Defaults to `"exhaustive"`.
+#' @param group_size Integer. Number of variables removed at each step in
+#'   groupwise mode. Defaults to 2.
 #' @param cv_folds Integer. Number of cross-validation folds. Defaults to 5.
 #' @param seed Integer. Random seed for reproducibility. Defaults to 123.
-#' @param verbose Logical. Print progress messages. Defaults to `TRUE`.
-#' @param allow_parallel Logical. Use parallel computing via
-#'   [foreach::foreach()] and [doParallel::registerDoParallel()]. Defaults
-#'   to `TRUE`.
-#' @param permutation Logical. Compute permutation importance scores for
-#'   each predictor. Defaults to `FALSE`.
-#' @param splines Logical. Apply restricted cubic splines (via
-#'   [rms::rcs()]) to continuous predictors. Defaults to `TRUE`.
-#' @param n_knots Integer. Number of knots for restricted cubic splines.
-#'   Defaults to 3.
+#' @param verbose Logical. If `TRUE`, progress messages are printed.
+#'   Defaults to `TRUE`.
+#' @param allow_parallel Logical. If `TRUE`, use parallel computation
+#'   through `foreach` and `doParallel`. Defaults to `TRUE`.
+#' @param permutation Logical. If `TRUE`, compute permutation importance
+#'   scores for each predictor. Defaults to `FALSE`.
+#' @param splines Logical. If `TRUE`, apply restricted cubic splines
+#'   (via `rms::rcs()`) to continuous predictors. Defaults to `TRUE`.
+#' @param n_knots Integer. Number of knots used for restricted cubic
+#'   splines. Defaults to 3.
 #'
-#' @return A list with two elements:
+#' @return A list with the following elements:
 #' \describe{
 #'   \item{best_model_stats}{A one-row data frame describing the
 #'     top-performing model.}
 #'   \item{all_models}{A data frame with one row per evaluated model,
 #'     containing columns `Model`, `n_Preds`, `AUC`, `Brier`,
-#'     `Total_Cost`, `Avg_Adj_Net_Benefit`, `Avg_Net_Benefit`, and
-#'     (if `permutation = TRUE`) `VIF_*` columns for each predictor.}
+#'     `Total_Cost`, `Avg_Adj_Net_Benefit`, and `Avg_Net_Benefit`.
+#'     If `permutation = TRUE`, additional `VIF_` columns containing
+#'     permutation importance scores are included.}
 #' }
 #'
 #' @examples

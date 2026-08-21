@@ -19,40 +19,42 @@ all_subset_plot(
 }
 \arguments{
 \item{all_models}{Data frame returned in the \code{all_models} element of
-\code{\link[=nb_varsel]{nb_varsel()}}.}
+\code{\link[=nb_varsel]{nb_varsel()}}. This should contain the model summary output used for
+plotting.}
 
-\item{metric}{Character string. Column name in \code{all_models} to plot on
-the y-axis. Defaults to \code{"Avg_Net_Benefit"}.}
+\item{metric}{Character string. Name of the column in \code{all_models} to
+plot on the y-axis. Defaults to \code{"Avg_Net_Benefit"}.}
 
-\item{y_axis}{Character string. Label for the y-axis of the top panel.
+\item{y_axis}{Character string. Label for the y-axis in the top panel.
 Defaults to \code{"Average Net Benefit"}.}
 
-\item{filter}{Integer. When there are more than 100 models, keep only
-the top \code{filter} models per number of predictors. Defaults to 5.}
+\item{filter}{Integer. Maximum number of models to display per number
+of predictors. Defaults to 5.}
 
-\item{size_dot}{Numeric. Point size in the metric plot. Defaults to 3.}
+\item{size_dot}{Numeric. Point size used in the metric plot. Defaults
+to 3.}
 
-\item{highlight_color}{Character string. Color for the dashed lines
-marking the best model. Defaults to \code{"red"}.}
+\item{highlight_color}{Character string. Color for the dashed reference
+lines marking the best model. Defaults to \code{"red"}.}
 
-\item{tile_color}{Character string. Fill color for "present" tiles in
-the heatmap panel. Defaults to \code{"#2A6EBB"}.}
+\item{tile_color}{Character string. Fill color used for included
+predictors in the heatmap. Defaults to \code{"#2A6EBB"}.}
 
-\item{p1_theme}{A \code{\link[ggplot2:theme]{ggplot2::theme()}} object to add to the top panel, or
-\code{NULL}.}
-
-\item{p2_theme}{A \code{\link[ggplot2:theme]{ggplot2::theme()}} object to add to the bottom panel,
+\item{p1_theme}{A \code{\link[ggplot2:theme]{ggplot2::theme()}} object applied to the top panel,
 or \code{NULL}.}
 
-\item{data_dict}{A named character vector for renaming predictors.
-Format: c("raw_name" = "Display Label"). Defaults to \code{NULL}.}
+\item{p2_theme}{A \code{\link[ggplot2:theme]{ggplot2::theme()}} object applied to the bottom panel,
+or \code{NULL}.}
+
+\item{data_dict}{A named character vector used to relabel predictors.
+Format: \code{c("raw_name" = "Display Label")}. Defaults to \code{NULL}.}
 }
 \value{
-A \link[patchwork:patchwork]{patchwork} object (two stacked ggplot panels).
+A \link[patchwork:patchwork]{patchwork} object containing two stacked ggplot panels.
 }
 \description{
-Creates a two-panel figure: the top panel shows a performance metric
-across all evaluated models (ordered by number of predictors then by
-metric value), and the bottom panel shows a heatmap of which predictors
-are included in each model.
+Creates a two-panel figure comparing model performance across all
+evaluated subsets. The upper panel shows the selected metric for each
+model, and the lower panel shows which predictors are included in each
+model.
 }

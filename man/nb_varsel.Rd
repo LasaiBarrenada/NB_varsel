@@ -22,70 +22,73 @@ nb_varsel(
 )
 }
 \arguments{
-\item{data}{A data frame containing predictors and the outcome variable.}
+\item{data}{A data frame containing the predictor variables and the
+binary outcome.}
 
 \item{outcome_var}{Character string naming the binary outcome column
-(coded 0/1 or as a two-level factor).}
+(coded as 0/1 or as a two-level factor).}
 
 \item{costs}{Predictor costs. Can be:
 \itemize{
 \item \code{NULL} (default): no costs.
-\item A named numeric vector: per-predictor costs (e.g.,
-\code{c(X1 = 0.1, X2 = 0.05)}).
-\item An unnamed scalar: same cost applied to every predictor.
+\item A named numeric vector: per-predictor costs, e.g.
+\code{c(X1 = 0.1, X2 = 0.05)}.
+\item An unnamed scalar: the same cost applied to every predictor.
 \item A list of groups, each with elements \code{vars} (character vector) and
-\code{cost} (numeric). The group cost is added once if \emph{any} of its
-variables are included.
+\code{cost} (numeric). The group cost is added once if any variable in
+the group is selected.
 }}
 
-\item{thresholds}{Numeric vector of decision thresholds at which to
-compute Net Benefit. Defaults to \code{seq(0.05, 0.3, by = 0.01)}.}
+\item{thresholds}{Numeric vector of decision thresholds at which net
+benefit is evaluated. Defaults to \code{seq(0.05, 0.3, by = 0.01)}.}
 
-\item{include_interactions}{Logical. If \code{TRUE}, models with interaction
-terms (\code{(X1 + X2 + ...)^2}) are also evaluated (exhaustive mode only).
+\item{include_interactions}{Logical. If \code{TRUE}, interaction terms
+(\code{(X1 + X2 + ...)^2}) are also evaluated in exhaustive mode.
 Defaults to \code{FALSE}.}
 
-\item{mode}{Either \code{"exhaustive"} (evaluate all predictor combinations)
-or \code{"groupwise"} (backward elimination removing \code{group_size} variables
-at a time). Defaults to \code{"exhaustive"}.}
+\item{mode}{Character string specifying the selection strategy:
+\code{"exhaustive"} evaluates all predictor subsets, while \code{"groupwise"}
+performs backward elimination in groups of size \code{group_size}.
+Defaults to \code{"exhaustive"}.}
 
-\item{group_size}{Integer. Number of variables to consider removing in
-each step of groupwise mode. Defaults to 2.}
+\item{group_size}{Integer. Number of variables removed at each step in
+groupwise mode. Defaults to 2.}
 
 \item{cv_folds}{Integer. Number of cross-validation folds. Defaults to 5.}
 
 \item{seed}{Integer. Random seed for reproducibility. Defaults to 123.}
 
-\item{verbose}{Logical. Print progress messages. Defaults to \code{TRUE}.}
+\item{verbose}{Logical. If \code{TRUE}, progress messages are printed.
+Defaults to \code{TRUE}.}
 
-\item{allow_parallel}{Logical. Use parallel computing via
-\code{\link[foreach:foreach]{foreach::foreach()}} and \code{\link[doParallel:registerDoParallel]{doParallel::registerDoParallel()}}. Defaults
-to \code{TRUE}.}
+\item{allow_parallel}{Logical. If \code{TRUE}, use parallel computation
+through \code{foreach} and \code{doParallel}. Defaults to \code{TRUE}.}
 
-\item{permutation}{Logical. Compute permutation importance scores for
-each predictor. Defaults to \code{FALSE}.}
+\item{permutation}{Logical. If \code{TRUE}, compute permutation importance
+scores for each predictor. Defaults to \code{FALSE}.}
 
-\item{splines}{Logical. Apply restricted cubic splines (via
-\code{\link[rms:rcs]{rms::rcs()}}) to continuous predictors. Defaults to \code{TRUE}.}
+\item{splines}{Logical. If \code{TRUE}, apply restricted cubic splines
+(via \code{rms::rcs()}) to continuous predictors. Defaults to \code{TRUE}.}
 
-\item{n_knots}{Integer. Number of knots for restricted cubic splines.
-Defaults to 3.}
+\item{n_knots}{Integer. Number of knots used for restricted cubic
+splines. Defaults to 3.}
 }
 \value{
-A list with two elements:
+A list with the following elements:
 \describe{
 \item{best_model_stats}{A one-row data frame describing the
 top-performing model.}
 \item{all_models}{A data frame with one row per evaluated model,
 containing columns \code{Model}, \code{n_Preds}, \code{AUC}, \code{Brier},
-\code{Total_Cost}, \code{Avg_Adj_Net_Benefit}, \code{Avg_Net_Benefit}, and
-(if \code{permutation = TRUE}) \verb{VIF_*} columns for each predictor.}
+\code{Total_Cost}, \code{Avg_Adj_Net_Benefit}, and \code{Avg_Net_Benefit}.
+If \code{permutation = TRUE}, additional \code{VIF_} columns containing
+permutation importance scores are included.}
 }
 }
 \description{
-Performs exhaustive or groupwise (backward elimination) variable selection
-for binary outcome prediction models. Models are evaluated using
-cross-validated Net Benefit, optionally adjusted for predictor costs.
+Performs exhaustive or groupwise variable selection for binary-outcome
+prediction models. Models are evaluated using cross-validated net benefit,
+with optional adjustment for predictor costs.
 }
 \examples{
 set.seed(42)

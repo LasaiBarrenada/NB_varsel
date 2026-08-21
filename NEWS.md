@@ -1,3 +1,11 @@
+# NBvarsel 0.1.1
+
+* Improved package documentation and roxygen comments for the main selection function and plotting helpers, making the exported API clearer and easier to use.
+* Refined the documentation for `all_subset_plot()` and `VIF_plot()` to better describe their inputs, outputs, and examples.
+* Extended plotting utilities with optional predictor relabelling via `data_dict`, making it easier to present clinically meaningful variable names in figures.
+* Improved the tutorial vignette layout and narrative around the fabricated clinical example and case-study sections, with clearer descriptions of model comparisons and interpretation.
+* Cleaned up the vignette workflow to avoid brittle global-environment cleanup during execution.
+
 # NBvarsel 0.1.0
 
 * Initial release.

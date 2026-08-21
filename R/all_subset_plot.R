@@ -1,31 +1,33 @@
 #' All-Subset Model Comparison Plot
 #'
-#' Creates a two-panel figure: the top panel shows a performance metric
-#' across all evaluated models (ordered by number of predictors then by
-#' metric value), and the bottom panel shows a heatmap of which predictors
-#' are included in each model.
+#' Creates a two-panel figure comparing model performance across all
+#' evaluated subsets. The upper panel shows the selected metric for each
+#' model, and the lower panel shows which predictors are included in each
+#' model.
 #'
 #' @param all_models Data frame returned in the `all_models` element of
-#'   [nb_varsel()].
-#' @param metric Character string. Column name in `all_models` to plot on
-#'   the y-axis. Defaults to `"Avg_Net_Benefit"`.
-#' @param y_axis Character string. Label for the y-axis of the top panel.
+#'   [nb_varsel()]. This should contain the model summary output used for
+#'   plotting.
+#' @param metric Character string. Name of the column in `all_models` to
+#'   plot on the y-axis. Defaults to `"Avg_Net_Benefit"`.
+#' @param y_axis Character string. Label for the y-axis in the top panel.
 #'   Defaults to `"Average Net Benefit"`.
-#' @param filter Integer. When there are more than 100 models, keep only
-#'   the top `filter` models per number of predictors. Defaults to 5.
-#' @param size_dot Numeric. Point size in the metric plot. Defaults to 3.
-#' @param highlight_color Character string. Color for the dashed lines
-#'   marking the best model. Defaults to `"red"`.
-#' @param tile_color Character string. Fill color for "present" tiles in
-#'   the heatmap panel. Defaults to `"#2A6EBB"`.
-#' @param p1_theme A [ggplot2::theme()] object to add to the top panel, or
-#'   `NULL`.
-#' @param p2_theme A [ggplot2::theme()] object to add to the bottom panel,
+#' @param filter Integer. Maximum number of models to display per number
+#'   of predictors. Defaults to 5.
+#' @param size_dot Numeric. Point size used in the metric plot. Defaults
+#'   to 3.
+#' @param highlight_color Character string. Color for the dashed reference
+#'   lines marking the best model. Defaults to `"red"`.
+#' @param tile_color Character string. Fill color used for included
+#'   predictors in the heatmap. Defaults to `"#2A6EBB"`.
+#' @param p1_theme A [ggplot2::theme()] object applied to the top panel,
 #'   or `NULL`.
-#' @param data_dict A named character vector for renaming predictors. 
-#'   Format: c("raw_name" = "Display Label"). Defaults to `NULL`.
+#' @param p2_theme A [ggplot2::theme()] object applied to the bottom panel,
+#'   or `NULL`.
+#' @param data_dict A named character vector used to relabel predictors.
+#'   Format: `c("raw_name" = "Display Label")`. Defaults to `NULL`.
 #'
-#' @return A [patchwork] object (two stacked ggplot panels).
+#' @return A [patchwork] object containing two stacked ggplot panels.
 #'
 #' @export
 all_subset_plot <- function(
