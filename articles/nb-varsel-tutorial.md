@@ -331,7 +331,7 @@ end_time <- Sys.time()
 sprintf("Exhaustive search took: %s", format(end_time - start_time))
 ```
 
-    [1] "Exhaustive search took: 1.754176 mins"
+    [1] "Exhaustive search took: 1.410672 mins"
 
 #### 3.3.1 Best model
 
@@ -486,7 +486,7 @@ end_time <- Sys.time()
 sprintf("Groupwise search took: %s", format(end_time - start_time))
 ```
 
-    [1] "Groupwise search took: 14.72222 secs"
+    [1] "Groupwise search took: 11.75064 secs"
 
 Code
 

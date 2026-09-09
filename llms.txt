@@ -19,7 +19,14 @@ metrics like p-values. It supports:
 
 ## Installation
 
-You can install the development version of NBvarsel from GitHub:
+The stable version of `NBvarsel` is available from CRAN:
+
+``` r
+
+install.packages("NBvarsel")
+```
+
+You can install the development version from GitHub:
 
 ``` r
 
@@ -27,11 +34,12 @@ You can install the development version of NBvarsel from GitHub:
 pak::pak("LasaiBarrenada/NB_varsel")
 ```
 
-Alternatively, install from a source tarball (`.tar.gz`):
+Alternatively, install the development version from a source tarball
+(`.tar.gz`):
 
 ``` r
 
-install.packages("NBvarsel_0.1.0.tar.gz", repos = NULL, type = "source")
+install.packages("NBvarsel_0.1.1.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Quick Start

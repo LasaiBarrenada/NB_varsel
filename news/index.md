@@ -2,6 +2,8 @@
 
 ## NBvarsel 0.1.1
 
+CRAN release: 2026-08-30
+
 - Improved package documentation and roxygen comments for the main
   selection function and plotting helpers, making the exported API
   clearer and easier to use.

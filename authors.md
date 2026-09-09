@@ -33,7 +33,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/LasaiBarrenada/NB_varsel/blob/v0.1.1/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/LasaiBarrenada/NB_varsel/blob/main/DESCRIPTION)
 
 Barreñada L, Wynants L, Steyerberg E, Vickers A, Van Calster B (2026).
 *NBvarsel: Variable Selection via Cross-Validated Net Benefit*. R
