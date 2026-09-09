@@ -2,6 +2,8 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/LasaiBarrenada/NB_varsel/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LasaiBarrenada/NB_varsel/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://www.r-pkg.org/badges/version/NBvarsel)](https://CRAN.R-project.org/package=NBvarsel)
+[![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/NBvarsel)](https://cranlogs.r-pkg.org/badges/grand-total/NBvarsel)
 <!-- badges: end -->
 
 Variable selection for binary outcome prediction models using cross-validated
@@ -22,17 +24,24 @@ metrics like p-values. It supports:
 
 ## Installation
 
-You can install the development version of NBvarsel from GitHub:
+The stable version of `NBvarsel` is available from CRAN:
+
+```r
+install.packages("NBvarsel")
+```
+
+You can install the development version from GitHub:
 
 ```r
 # install.packages("pak")
 pak::pak("LasaiBarrenada/NB_varsel")
 ```
 
-Alternatively, install from a source tarball (`.tar.gz`):
+Alternatively, install the development version from a source tarball
+(`.tar.gz`):
 
 ```r
-install.packages("NBvarsel_0.1.0.tar.gz", repos = NULL, type = "source")
+install.packages("NBvarsel_0.1.1.tar.gz", repos = NULL, type = "source")
 ```
 
 ## Quick Start
