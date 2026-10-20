@@ -4,7 +4,13 @@
 \alias{VIF_plot}
 \title{Permutation Importance Bar Plot}
 \usage{
-VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
+VIF_plot(
+  all_models,
+  filter = NULL,
+  color = "#2A6EBB",
+  data_dict = NULL,
+  metric = "Avg_Adj_Net_Benefit"
+)
 }
 \arguments{
 \item{all_models}{Data frame returned in the \code{all_models} element of
@@ -12,7 +18,7 @@ VIF_plot(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL)
 \code{permutation = TRUE}.}
 
 \item{filter}{Integer or \code{NULL}. If specified, only the top \code{filter}
-models by \code{Avg_Net_Benefit} are used to compute average importance.
+models by \code{metric} are used to compute average importance.
 Defaults to \code{NULL}, which uses all models.}
 
 \item{color}{Character string. Fill color for the bars. Defaults to
@@ -20,6 +26,10 @@ Defaults to \code{NULL}, which uses all models.}
 
 \item{data_dict}{A named character vector used to relabel predictors.
 Format: \code{c("raw_name" = "Display Label")}. Defaults to \code{NULL}.}
+
+\item{metric}{Character string. Name of the column in \code{all_models} used
+to rank models when \code{filter} is specified. Defaults to
+\code{"Avg_Adj_Net_Benefit"}.}
 }
 \value{
 A list with two elements:

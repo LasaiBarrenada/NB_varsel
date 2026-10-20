@@ -99,6 +99,7 @@ fastAUC <- function(p, y) {
   n1 <- length(x1)
   x2 <- p[y == 0]
   n2 <- length(x2)
+  if (n1 == 0 || n2 == 0) return(NA_real_)
   r <- rank(c(x1, x2))
   auc <- (sum(r[1:n1]) - n1 * (n1 + 1) / 2) / n1 / n2
   auc

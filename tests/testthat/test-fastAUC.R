@@ -20,3 +20,8 @@ test_that("fastAUC returns value between 0 and 1", {
   expect_gte(result, 0)
   expect_lte(result, 1)
 })
+
+test_that("fastAUC returns NA_real_ when one class is empty", {
+  expect_identical(NBvarsel:::fastAUC(c(0.2, 0.8), c(1, 1)), NA_real_)
+  expect_identical(NBvarsel:::fastAUC(c(0.2, 0.8), c(0, 0)), NA_real_)
+})

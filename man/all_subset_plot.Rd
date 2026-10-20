@@ -28,8 +28,8 @@ plot on the y-axis. Defaults to \code{"Avg_Net_Benefit"}.}
 \item{y_axis}{Character string. Label for the y-axis in the top panel.
 Defaults to \code{"Average Net Benefit"}.}
 
-\item{filter}{Integer. Maximum number of models to display per number
-of predictors. Defaults to 5.}
+\item{filter}{Integer or \code{NULL}. Maximum number of models to display per
+number of predictors. Defaults to 5.}
 
 \item{size_dot}{Numeric. Point size used in the metric plot. Defaults
 to 3.}
@@ -57,4 +57,9 @@ Creates a two-panel figure comparing model performance across all
 evaluated subsets. The upper panel shows the selected metric for each
 model, and the lower panel shows which predictors are included in each
 model.
+}
+\examples{
+data(adnex_results)
+all_subset_plot(adnex_results, filter = 7, size_dot = 1)
+
 }

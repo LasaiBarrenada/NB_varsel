@@ -1,6 +1,6 @@
 Package: NBvarsel
 Title: Variable Selection via Cross-Validated Net Benefit
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Lasai", "Barreñada", , "lasai.barrenadataleb@kuleuven.be",
            role = c("aut", "cre"),
@@ -48,7 +48,6 @@ Imports:
     ggtext,
     parallel,
     patchwork,
-    pROC,
     rlang,
     rms,
     scales,
@@ -60,6 +59,7 @@ Suggests:
     ggsci,
     gt,
     knitr,
+    pROC,
     quarto,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto

@@ -13,7 +13,7 @@
 #' The analysis used 16 candidate predictors for a binary outcome (malignant
 #' vs. benign ovarian tumour) with grouped predictor costs reflecting clinical
 #' history (free), ultrasound examination (moderate cost), and blood biomarker
-#' (higher cost). Five-fold cross-validation was used with restricted cubic
+#' (higher cost). Twenty-fold cross-validation was used with restricted cubic
 #' splines (3 knots) for continuous predictors.
 #'
 #' @format A data frame with 293 rows and 23 columns:

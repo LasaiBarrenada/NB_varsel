@@ -838,7 +838,7 @@ tbl
 VIF_plot(adnex_results)$plot
 ```
 
-@fig-adnex-vif shows that the proportion solid component and colour score are the most important predictors for clinical utility, followed by maximum lesion diameter and oncology centre status.
+@fig-adnex-vif shows that the proportion solid component and maximum solid diameter are the most important predictors for clinical utility, followed by maximum lesion diameter and colour score.
 
 ```{r}
 #| label: fig-adnex-subset

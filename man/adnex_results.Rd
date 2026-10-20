@@ -46,7 +46,7 @@ demonstrate the \code{\link[=all_subset_plot]{all_subset_plot()}} and \code{\lin
 The analysis used 16 candidate predictors for a binary outcome (malignant
 vs. benign ovarian tumour) with grouped predictor costs reflecting clinical
 history (free), ultrasound examination (moderate cost), and blood biomarker
-(higher cost). Five-fold cross-validation was used with restricted cubic
+(higher cost). Twenty-fold cross-validation was used with restricted cubic
 splines (3 knots) for continuous predictors.
 
 The 16 candidate predictors are:

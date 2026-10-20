@@ -167,7 +167,7 @@ test_that("splines work in groupwise mode", {
 
 # --- Parallel ---
 
-test_that("parallel works in exhaustive mode", {
+test_that("parallel works in exhaustive mode and matches sequential", {
   skip_on_cran()
   set.seed(5428)
   n <- 200
@@ -177,7 +177,7 @@ test_that("parallel works in exhaustive mode", {
     Y = rbinom(n, 1, 0.5)
   )
 
-  result <- nb_varsel(
+  res_par <- nb_varsel(
     data = df,
     outcome_var = "Y",
     mode = "exhaustive",
@@ -187,8 +187,19 @@ test_that("parallel works in exhaustive mode", {
     cv_folds = 3
   )
 
-  expect_type(result, "list")
-  expect_equal(nrow(result$all_models), 3)
+  res_seq <- nb_varsel(
+    data = df,
+    outcome_var = "Y",
+    mode = "exhaustive",
+    splines = FALSE,
+    allow_parallel = FALSE,
+    verbose = FALSE,
+    cv_folds = 3
+  )
+
+  expect_type(res_par, "list")
+  expect_equal(nrow(res_par$all_models), 3)
+  expect_equal(res_par$all_models, res_seq$all_models)
 })
 
 test_that("parallel works in groupwise mode", {
@@ -240,6 +251,33 @@ test_that("parallel with splines works in exhaustive mode", {
 
   expect_type(result, "list")
   expect_equal(nrow(result$all_models), 3)
+})
+
+test_that("parallel with splines works in groupwise mode", {
+  skip_on_cran()
+  set.seed(9182)
+  n <- 200
+  df <- data.frame(
+    X1 = rnorm(n),
+    X2 = rnorm(n),
+    X3 = rbinom(n, 1, 0.5),
+    Y = rbinom(n, 1, 0.5)
+  )
+
+  result <- nb_varsel(
+    data = df,
+    outcome_var = "Y",
+    mode = "groupwise",
+    group_size = 1,
+    splines = TRUE,
+    n_knots = 3,
+    allow_parallel = TRUE,
+    verbose = FALSE,
+    cv_folds = 3
+  )
+
+  expect_type(result, "list")
+  expect_true(nrow(result$all_models) >= 1)
 })
 
 # --- Interactions ---
@@ -352,6 +390,45 @@ test_that("non-binary outcome is rejected", {
       splines = FALSE, allow_parallel = FALSE, verbose = FALSE
     ),
     "binary"
+  )
+})
+
+test_that("missing outcome column and NA outcome values are rejected", {
+  df <- data.frame(X1 = rnorm(50), Y = rbinom(50, 1, 0.5))
+
+  expect_error(
+    nb_varsel(
+      data = df, outcome_var = "missing_col",
+      splines = FALSE, allow_parallel = FALSE, verbose = FALSE
+    ),
+    "outcome_var"
+  )
+
+  df$Y[1] <- NA
+  expect_error(
+    nb_varsel(
+      data = df, outcome_var = "Y",
+      splines = FALSE, allow_parallel = FALSE, verbose = FALSE
+    ),
+    "missing"
+  )
+})
+
+test_that("groupwise mode warns when predictors <= group_size", {
+  set.seed(1234)
+  df <- data.frame(
+    X1 = rnorm(100),
+    X2 = rnorm(100),
+    Y = rbinom(100, 1, 0.5)
+  )
+
+  expect_warning(
+    nb_varsel(
+      data = df, outcome_var = "Y",
+      mode = "groupwise", group_size = 2,
+      splines = FALSE, allow_parallel = FALSE, verbose = FALSE, cv_folds = 3
+    ),
+    "group_size"
   )
 })
 

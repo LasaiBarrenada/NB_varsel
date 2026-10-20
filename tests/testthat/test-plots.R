@@ -21,6 +21,35 @@ test_that("all_subset_plot returns a patchwork object", {
   expect_s3_class(p, "patchwork")
 })
 
+test_that("all_subset_plot strips interaction suffix and respects filter", {
+  set.seed(5514)
+  n <- 200
+  df <- data.frame(
+    X1 = rnorm(n),
+    X2 = rbinom(n, 1, 0.5),
+    X3 = rnorm(n),
+    Y = rbinom(n, 1, 0.5)
+  )
+
+  result <- nb_varsel(
+    data = df,
+    outcome_var = "Y",
+    mode = "exhaustive",
+    include_interactions = TRUE,
+    splines = FALSE,
+    allow_parallel = FALSE,
+    verbose = FALSE,
+    cv_folds = 3
+  )
+
+  p <- all_subset_plot(result$all_models, filter = 2)
+  expect_s3_class(p, "patchwork")
+
+  # Bottom heatmap panel should only have X1, X2, X3 as predictor levels
+  heatmap_preds <- levels(p[[2]]$data$predictor)
+  expect_equal(heatmap_preds, c("X1", "X2", "X3"))
+})
+
 test_that("all_subset_plot handles varied p1_theme and p2_theme", {
   set.seed(3311)
   n <- 200
@@ -65,7 +94,7 @@ test_that("all_subset_plot handles varied p1_theme and p2_theme", {
   }
 })
 
-test_that("VIF_plot returns plot and numerical results", {
+test_that("VIF_plot returns plot and numerical results and validates VIF_ columns", {
   set.seed(1742)
   n <- 200
   df <- data.frame(
@@ -98,4 +127,8 @@ test_that("VIF_plot returns plot and numerical results", {
   expect_true(all(c("Variable", "Average_Delta_NB") %in% names(d)))
   expect_gt(nrow(d), 0)
   expect_true(is.numeric(d$Average_Delta_NB))
+
+  # Without VIF_ columns, VIF_plot should error informatively
+  no_vif_df <- result$all_models[, c("Model", "n_Preds", "Avg_Adj_Net_Benefit")]
+  expect_error(VIF_plot(no_vif_df), "VIF_")
 })

@@ -8,12 +8,15 @@
 #'   [nb_varsel()]. Must include `VIF_` columns generated when
 #'   `permutation = TRUE`.
 #' @param filter Integer or `NULL`. If specified, only the top `filter`
-#'   models by `Avg_Net_Benefit` are used to compute average importance.
+#'   models by `metric` are used to compute average importance.
 #'   Defaults to `NULL`, which uses all models.
 #' @param color Character string. Fill color for the bars. Defaults to
 #'   `"#2A6EBB"`.
 #' @param data_dict A named character vector used to relabel predictors.
 #'   Format: `c("raw_name" = "Display Label")`. Defaults to `NULL`.
+#' @param metric Character string. Name of the column in `all_models` used
+#'   to rank models when `filter` is specified. Defaults to
+#'   `"Avg_Adj_Net_Benefit"`.
 #'
 #' @return A list with two elements:
 #' \describe{
@@ -29,19 +32,32 @@
 #' head(vif_results$data)
 #'
 #' @export
-VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB", data_dict = NULL) {
+VIF_plot <- function(
+    all_models,
+    filter = NULL,
+    color = "#2A6EBB",
+    data_dict = NULL,
+    metric = "Avg_Adj_Net_Benefit"
+) {
+  vif_cols <- dplyr::select(all_models, dplyr::starts_with("VIF_"))
+  if (ncol(vif_cols) == 0) {
+    stop(
+      "`all_models` must contain `VIF_` columns (run `nb_varsel()` with `permutation = TRUE`)."
+    )
+  }
+
   if (!is.null(filter)) {
     all_models <- all_models |>
-      dplyr::slice_max(order_by = .data$Avg_Net_Benefit, n = filter) |>
+      dplyr::slice_max(order_by = .data[[metric]], n = filter, with_ties = FALSE) |>
       dplyr::ungroup()
   }
 
   vif_means <- all_models |>
-    dplyr::select(dplyr::starts_with("VIF")) |>
+    dplyr::select(dplyr::starts_with("VIF_")) |>
     colMeans(na.rm = TRUE) |>
     sort(decreasing = TRUE)
 
-  names(vif_means) <- gsub("VIF_", "", names(vif_means))
+  names(vif_means) <- sub("^VIF_", "", names(vif_means))
 
   plot_df <- data.frame(
     Variable = names(vif_means),
@@ -60,7 +76,7 @@ VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB", data_dict = N
   p <- ggplot2::ggplot(
     plot_df,
     ggplot2::aes(
-      x = stats::reorder(.data$Label, -.data$Average_Delta_NB),
+      x = stats::reorder(.data$Label, .data$Average_Delta_NB),
       y = .data$Average_Delta_NB
     )
   ) +
@@ -69,6 +85,6 @@ VIF_plot <- function(all_models, filter = NULL, color = "#2A6EBB", data_dict = N
     ggplot2::ylab(expression("Average" ~ Delta ~ "NB")) +
     ggplot2::theme_classic() +
     ggplot2::coord_flip()
-  
+
   return(list(plot = p, data = plot_df))
 }

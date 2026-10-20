@@ -89,36 +89,55 @@ nb_varsel <- function(
   mode <- match.arg(mode)
 
   # --- 1. Data Prep ---
+  if (!is.character(outcome_var) || length(outcome_var) != 1 || !(outcome_var %in% names(data))) {
+    stop("`outcome_var` must be the name of a column in `data`.")
+  }
+
+  if (anyNA(data[[outcome_var]])) {
+    stop("Outcome variable contains missing (NA) values.")
+  }
+
   if (is.factor(data[[outcome_var]])) {
     y_numeric <- as.numeric(data[[outcome_var]]) - 1
   } else {
     y_numeric <- data[[outcome_var]]
   }
 
-  if (!all(unique(y_numeric) %in% c(0, 1))) {
+  if (!all(unique(y_numeric) %in% c(0, 1)) || length(unique(y_numeric)) < 2) {
     stop("Outcome must be binary (0/1).")
   }
 
   data[[outcome_var]] <- y_numeric
   all_predictors <- setdiff(names(data), outcome_var)
 
+  if (length(all_predictors) == 0) {
+    stop("`data` must contain at least one predictor column.")
+  }
+
   # --- 2. Core CV Engine (closure over shared state) ---
-  run_model_cv <- function(vars, explicit_formula = NULL, label_suffix = "") {
+  run_model_cv <- function(vars, interactions = FALSE, label_suffix = "") {
     if (length(vars) == 0) return(NULL)
 
-    if (!is.null(explicit_formula)) {
-      fmla <- stats::as.formula(explicit_formula)
-    } else if (splines) {
-      term_labels <- get_term_labels(vars, data, n_knots)
-      fmla <- stats::reformulate(termlabels = term_labels, response = outcome_var)
+    terms <- if (splines) {
+      get_term_labels(vars, data, n_knots)
     } else {
-      fmla <- paste(outcome_var, "~", paste(vars, collapse = " + "))
+      vars
+    }
+
+    if (interactions && length(terms) > 1) {
+      fmla <- stats::as.formula(
+        paste(outcome_var, "~ (", paste(terms, collapse = " + "), ")^2")
+      )
+    } else {
+      fmla <- stats::as.formula(
+        paste(outcome_var, "~", paste(terms, collapse = " + "))
+      )
     }
 
     total_cost <- calculate_model_cost(vars, costs)
 
     set.seed(seed)
-    fold_ids <- caret::createFolds(y_numeric, k = cv_folds, returnTrain = FALSE)
+    fold_ids <- caret::createFolds(factor(y_numeric), k = cv_folds, returnTrain = FALSE)
 
     fold_results <- matrix(NA, nrow = cv_folds, ncol = length(thresholds))
     if (permutation) {
@@ -134,8 +153,8 @@ nb_varsel <- function(
 
     for (i in seq_along(fold_ids)) {
       val_idx <- fold_ids[[i]]
-      train_data <- data[-val_idx, ]
-      val_data <- data[val_idx, ]
+      train_data <- data[-val_idx, , drop = FALSE]
+      val_data <- data[val_idx, , drop = FALSE]
       val_y <- y_numeric[val_idx]
 
       model <- suppressWarnings(
@@ -150,9 +169,7 @@ nb_varsel <- function(
       )
 
       if (length(unique(val_y)) > 1) {
-        aucs[i] <- suppressMessages(
-          as.numeric(pROC::auc(val_y, val_probs))
-        )
+        aucs[i] <- fastAUC(val_probs, val_y)
       } else {
         aucs[i] <- NA
       }
@@ -225,19 +242,12 @@ nb_varsel <- function(
 
     process_combo <- function(vars) {
       batch_results <- list()
-      if (splines) {
-        fmla_add <- NULL
-      } else {
-        fmla_add <- paste(outcome_var, "~", paste(vars, collapse = " + "))
-      }
-
-      batch_results[[1]] <- run_model_cv(vars, explicit_formula = fmla_add)
+      batch_results[[1]] <- run_model_cv(vars, interactions = FALSE)
 
       if (include_interactions && length(vars) > 1) {
-        fmla_int <- paste(outcome_var, "~ (", paste(vars, collapse = " + "), ")^2")
         batch_results[[2]] <- run_model_cv(
           vars,
-          explicit_formula = fmla_int,
+          interactions = TRUE,
           label_suffix = " (+ Interactions)"
         )
       }
@@ -247,44 +257,21 @@ nb_varsel <- function(
     if (allow_parallel) {
       cores <- get_cores()
       cl <- parallel::makeCluster(cores)
-      doParallel::registerDoParallel(cl)
       on.exit(parallel::stopCluster(cl), add = TRUE)
+      doParallel::registerDoParallel(cl)
 
       combo <- NULL # avoid R CMD check NOTE about undefined global
       nested_results <- foreach::foreach(
         combo = all_combos,
-        .packages = c("caret", "pROC", "DescTools", "rms"),
-        .export = c("calculate_model_cost", "compute_fold_metrics")
+        .packages = c("caret", "DescTools", "rms"),
+        .export = c(
+          "calculate_model_cost",
+          "compute_fold_metrics",
+          "get_term_labels",
+          "fastAUC"
+        )
       ) %dopar% {
-        # Worker-local helper for spline terms
-        get_term_labels_worker <- function(vars_subset) {
-          vapply(vars_subset, function(v) {
-            if (is.numeric(data[[v]]) && length(unique(data[[v]])) > 5) {
-              paste0("rms::rcs(", v, ", ", n_knots, ")")
-            } else {
-              v
-            }
-          }, character(1))
-        }
-
-        terms <- get_term_labels_worker(combo)
-        fmla_add_str <- paste(outcome_var, "~", paste(terms, collapse = " + "))
-
-        res1 <- run_model_cv(combo, explicit_formula = fmla_add_str)
-        res_list <- list(res1)
-
-        if (include_interactions && length(combo) > 1) {
-          fmla_int_str <- paste(
-            outcome_var, "~ (", paste(terms, collapse = " + "), ")^2"
-          )
-          res2 <- run_model_cv(
-            combo,
-            explicit_formula = fmla_int_str,
-            label_suffix = " (+ Interactions)"
-          )
-          res_list[[2]] <- res2
-        }
-        res_list
+        process_combo(combo)
       }
       results_list <- unlist(nested_results, recursive = FALSE)
     } else {
@@ -300,40 +287,50 @@ nb_varsel <- function(
     if (include_interactions) {
       warning("Interactions not supported in groupwise mode.")
     }
+    if (length(all_predictors) <= group_size) {
+      warning(
+        "Number of predictors (", length(all_predictors),
+        ") is <= `group_size` (", group_size,
+        "); only the full model will be evaluated."
+      )
+    }
     if (verbose) message("Starting Groupwise Search...")
 
     current_vars <- all_predictors
-    fmla <- NULL
-    if (!splines) {
-      fmla <- paste(outcome_var, "~", paste(current_vars, collapse = " + "))
-    }
-    best_result <- run_model_cv(current_vars, fmla)
+    best_result <- run_model_cv(current_vars, interactions = FALSE)
     results_list[[1]] <- best_result
     improved <- TRUE
+
+    if (allow_parallel && length(current_vars) > group_size) {
+      cores <- get_cores()
+      cl <- parallel::makeCluster(cores)
+      on.exit(parallel::stopCluster(cl), add = TRUE)
+      doParallel::registerDoParallel(cl)
+    }
 
     while (improved && length(current_vars) > group_size) {
       combos <- utils::combn(current_vars, group_size, simplify = FALSE)
       candidate_vars <- current_vars
 
       if (allow_parallel) {
-        cores <- get_cores()
-        cl <- parallel::makeCluster(cores)
-        doParallel::registerDoParallel(cl)
-
         params <- NULL # avoid R CMD check NOTE
         candidates <- foreach::foreach(
           params = combos,
-          .packages = c("caret", "pROC", "DescTools"),
-          .export = c("calculate_model_cost", "compute_fold_metrics")
+          .packages = c("caret", "DescTools", "rms"),
+          .export = c(
+            "calculate_model_cost",
+            "compute_fold_metrics",
+            "get_term_labels",
+            "fastAUC"
+          )
         ) %dopar% {
           test_vars <- setdiff(current_vars, params)
-          run_model_cv(test_vars)
+          run_model_cv(test_vars, interactions = FALSE)
         }
-        parallel::stopCluster(cl)
       } else {
         candidates <- lapply(combos, function(params) {
           test_vars <- setdiff(current_vars, params)
-          run_model_cv(test_vars)
+          run_model_cv(test_vars, interactions = FALSE)
         })
       }
 

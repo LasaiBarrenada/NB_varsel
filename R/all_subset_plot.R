@@ -12,8 +12,8 @@
 #'   plot on the y-axis. Defaults to `"Avg_Net_Benefit"`.
 #' @param y_axis Character string. Label for the y-axis in the top panel.
 #'   Defaults to `"Average Net Benefit"`.
-#' @param filter Integer. Maximum number of models to display per number
-#'   of predictors. Defaults to 5.
+#' @param filter Integer or `NULL`. Maximum number of models to display per
+#'   number of predictors. Defaults to 5.
 #' @param size_dot Numeric. Point size used in the metric plot. Defaults
 #'   to 3.
 #' @param highlight_color Character string. Color for the dashed reference
@@ -27,7 +27,11 @@
 #' @param data_dict A named character vector used to relabel predictors.
 #'   Format: `c("raw_name" = "Display Label")`. Defaults to `NULL`.
 #'
-#' @return A [patchwork] object containing two stacked ggplot panels.
+#' @return A [patchwork::patchwork] object containing two stacked ggplot panels.
+#'
+#' @examples
+#' data(adnex_results)
+#' all_subset_plot(adnex_results, filter = 7, size_dot = 1)
 #'
 #' @export
 all_subset_plot <- function(
@@ -44,6 +48,7 @@ all_subset_plot <- function(
 ) {
   # --- 1. Data Preparation ---
   all_vars <- all_models$Model |>
+    stringr::str_remove("\\s*\\(\\+ Interactions\\)$") |>
     stringr::str_split(",") |>
     unlist() |>
     stringr::str_trim() |>
@@ -54,11 +59,11 @@ all_subset_plot <- function(
     dplyr::mutate(model_id = dplyr::row_number())
 
   # --- 2. Filtering ---
-  if (nrow(df_sorted) > 100) {
+  if (!is.null(filter) && any(table(df_sorted$n_Preds) > filter)) {
     message(sprintf("Filtered to best %d per number of predictors.", filter))
     top_models <- df_sorted |>
       dplyr::group_by(.data$n_Preds) |>
-      dplyr::slice_max(order_by = .data[[metric]], n = filter) |>
+      dplyr::slice_max(order_by = .data[[metric]], n = filter, with_ties = FALSE) |>
       dplyr::ungroup()
     df_sorted <- df_sorted |>
       dplyr::filter(.data$model_id %in% top_models$model_id) |>
@@ -68,6 +73,9 @@ all_subset_plot <- function(
   # --- 3. Expand Data for Heatmap ---
   df_long <- df_sorted |>
     dplyr::select("model_id", "n_Preds", "Model") |>
+    dplyr::mutate(
+      Model = stringr::str_remove(.data$Model, "\\s*\\(\\+ Interactions\\)$")
+    ) |>
     tidyr::separate_rows("Model", sep = ",") |>
     dplyr::mutate(predictor = stringr::str_trim(.data$Model)) |>
     dplyr::filter(.data$predictor %in% all_vars) |>
@@ -87,16 +95,17 @@ all_subset_plot <- function(
   x_at_max <- df_sorted$model_id[best_model_idx]
 
   best_model_preds <- df_sorted$Model[best_model_idx] |>
+    stringr::str_remove("\\s*\\(\\+ Interactions\\)$") |>
     stringr::str_split(",") |>
     unlist() |>
     stringr::str_trim()
 
-  # --- 4.5 Apply Data Dictionary Mapping (NEW) ---
+  # --- 4.5 Apply Data Dictionary Mapping ---
   if (!is.null(data_dict)) {
     # Map the long dataframe for the y-axis labels
     mapped_long <- data_dict[df_long$predictor]
     df_long$predictor <- ifelse(is.na(mapped_long), df_long$predictor, mapped_long)
-    
+
     # Map the best model predictors so the bolding logic catches them
     mapped_best <- data_dict[best_model_preds]
     best_model_preds <- ifelse(is.na(mapped_best), best_model_preds, mapped_best)
