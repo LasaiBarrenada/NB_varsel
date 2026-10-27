@@ -19,6 +19,16 @@ test_that("all_subset_plot returns a patchwork object", {
 
   p <- all_subset_plot(result$all_models)
   expect_s3_class(p, "patchwork")
+
+  # Top panel: x-axis text, ticks, and title are blank; colorbar is "Number of Predictors"
+  expect_s3_class(p[[1]]$theme$axis.text.x, "element_blank")
+  expect_s3_class(p[[1]]$theme$axis.ticks.x, "element_blank")
+  expect_s3_class(p[[1]]$theme$axis.title.x, "element_blank")
+
+  # Bottom panel: x-axis title is "Predictor combination", x-axis text and ticks are blank
+  expect_equal(p[[2]]$labels$x, "Predictor combination")
+  expect_s3_class(p[[2]]$theme$axis.text.x, "element_blank")
+  expect_s3_class(p[[2]]$theme$axis.ticks.x, "element_blank")
 })
 
 test_that("all_subset_plot strips interaction suffix and respects filter", {

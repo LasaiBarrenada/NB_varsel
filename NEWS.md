@@ -4,7 +4,7 @@
 * Fixed a bug in `nb_varsel()` where parallel groupwise mode failed when `splines = TRUE` due to missing worker exports (`get_term_labels`, `rms`), and ensured parallel clusters are registered once with `on.exit()` cleanup.
 * Fixed class stratification in `nb_varsel()` cross-validation by passing `factor(y_numeric)` to `caret::createFolds()`, and switched fold AUC calculation to the internal `fastAUC()` helper.
 * Added input validation in `nb_varsel()` for missing `outcome_var` columns, `NA` outcome values, single-class outcomes, and `groupwise` searches when `n_predictors <= group_size`.
-* Fixed `all_subset_plot()` predictor name parsing for models containing `" (+ Interactions)"`, and allowed `filter` to apply whenever any predictor-count group exceeds `filter` models.
+* Fixed `all_subset_plot()` predictor name parsing for models containing `" (+ Interactions)"`, allowed `filter` to apply whenever any predictor-count group exceeds `filter` models, updated the bottom panel x-axis label to `"Predictor combination"`, and hid x-axis tick marks and labels on both panels to prevent overlap.
 * Fixed bar ordering in `VIF_plot()` so the most important predictor appears at the top of the plot, added validation for `VIF_` columns, and added a `metric` argument (defaulting to `"Avg_Adj_Net_Benefit"`).
 * Added `@examples` to `all_subset_plot()` and aligned the `adnex_results` documentation and tutorial vignette text.
 

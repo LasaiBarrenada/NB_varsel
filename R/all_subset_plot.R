@@ -187,7 +187,7 @@ all_subset_plot <- function(
     ggplot2::scale_fill_manual(
       values = c("0" = "white", "1" = tile_color)
     ) +
-    ggplot2::labs(x = "Number of Predictors", y = NULL) +
+    ggplot2::labs(x = "Predictor combination", y = NULL) +
     ggplot2::scale_y_discrete(labels = markdown_labels) +
     ggplot2::scale_x_continuous(
       limits = x_limits,
@@ -200,7 +200,8 @@ all_subset_plot <- function(
       panel.grid = ggplot2::element_blank(),
       axis.text.y = ggtext::element_markdown(color = "black"),
       legend.position = "none",
-      axis.text.x = ggplot2::element_text(size = 4)
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank()
     ) +
     p2_theme
 
